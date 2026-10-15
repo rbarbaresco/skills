@@ -47,6 +47,8 @@ Claude reaches for these when a task matches; you can also call them by name.
 
 - **[warm-context](./skills/productivity/warm-context/SKILL.md)**: build and load *warm-context packs*: researched domain knowledge (concepts, options, trade-offs, pitfalls) stored as indexed Markdown, so a planning session starts warm instead of from zero. Run `/rbarbaresco-skills:warm-context <topic>` to build or load a pack.
 
+  > **Beta:** the pack format and how packs are found may still change between versions.
+
   Packs live in `.warm-context/` inside the folder you're working in, so a project starts with its context already there. On the first pack, the skill adds a pointer to that folder's `AGENTS.md`, so every later session there knows which packs exist. Commit `.warm-context/` to share it, or gitignore it to keep it local. To keep one shared library across projects instead, set `$WARM_CONTEXT_HOME` (for example to `~/warm-context`) and import its `CATALOG.md` from your `~/.claude/CLAUDE.md`.
 
 ## License
