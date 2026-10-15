@@ -35,6 +35,12 @@ You start these yourself; Claude never triggers them on its own.
 
   > **Pro plan:** dynamic workflows are off by default. Turn on the **Dynamic workflows** row in `/config` before the first run.
 
+- **[stations](./skills/productivity/stations/SKILL.md)**: split your machine into *stations* (work, personal, research, ...), each with its own skills, plugins, MCP servers, settings and Claude login, so a session only carries the tools for the context it runs in. A small `claude()` shell function picks the station from the folder you start in, so a work tab and a personal tab stay logged in to different accounts at the same time. Sets up from scratch or adopts what's already on the machine, shows the full plan before changing anything, and backs up every run to `~/.agent-config-backup-<date>/` with a one-command `restore.sh`. Run it again later to catch new installs that leaked into every station.
+
+  > **AGENTS.md:** stations keep instructions in `AGENTS.md` files: `~/AGENTS.md` for what every station shares, `<station root>/AGENTS.md` for each station. By default Claude Code skips every `AGENTS.md` once a `CLAUDE.md` exists in the start folder or above it, so one repo's `CLAUDE.md` would silently hide your station files. The skill turns on the `claude-md-and-agents-md` setting in each station so both load, and lists repos still on `CLAUDE.md` so you can rename them.
+  >
+  > **Not covered:** the IDE extension and desktop app don't start through your shell, so they always use the default station (`~/.claude`).
+
 ### Model-invoked
 
 Claude reaches for these when a task matches; you can also call them by name.
