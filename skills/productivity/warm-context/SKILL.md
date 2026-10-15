@@ -8,7 +8,21 @@ compatibility: Needs web search. Uses subagents or a deep-research skill when av
 
 A **pack** is a domain's knowledge, not steps for doing a task in it. For "bake a pie", a pack covers pastry science, pie families, fillings and their trade-offs, and common failures. It leaves out the recipe. Packs feed a later planning session.
 
-**Library:** `$WARM_CONTEXT_HOME`, defaulting to `~/warm-context`. It holds `CATALOG.md` and one folder per pack, `<library>/<slug>/`. On the first run, create the library if it's missing and tell the user where it is and how to override it.
+**Library:** `.warm-context/` in the session's working directory, so a project carries its own context. If `$WARM_CONTEXT_HOME` is set, use that folder instead: one shared library, and skip the `AGENTS.md` step below. The library holds `CATALOG.md` and one folder per pack, `<library>/<slug>/`.
+
+The first time you write a pack into a project library, wire it up:
+1. Create `.warm-context/CATALOG.md` with a `# Warm-context packs` heading if it's missing.
+2. Add this block to `AGENTS.md` in the working directory, creating the file if needed. Skip it if the file already mentions `.warm-context/CATALOG.md`.
+
+   ```markdown
+   ## Warm-context packs
+
+   Researched domain knowledge for this project lives in `.warm-context/`. When a task touches a pack listed below, load it with the warm-context skill.
+
+   @.warm-context/CATALOG.md
+   ```
+3. Claude Code skips `AGENTS.md` by default when the folder also has a `CLAUDE.md`. If there is a `CLAUDE.md` that doesn't import `AGENTS.md`, add the same block there too.
+4. Tell the user where the library is, which instruction files you edited, that they can commit or gitignore `.warm-context/`, and that `$WARM_CONTEXT_HOME` switches to one shared library.
 
 ## 1. Match
 
