@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0
+
+- Add `stations` (user-invoked): one Claude Code config folder per context (work, personal, ...), picked from the current folder by a `claude()` shell function, with its own tools and login. Backed up per run with a `restore.sh`.
+
 ## 0.1.0
 
 - First release: `courtroom` (user-invoked) and `warm-context` (model-invoked). Warm-context packs live in `.warm-context/` in the project folder, wired up through `AGENTS.md`; `$WARM_CONTEXT_HOME` keeps a shared library.
