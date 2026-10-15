@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+- `courtroom`: role prompts and detective briefs no longer assume a specific tool stack (Datadog, Sentry, Jira, Confluence, Slack) or company; examples made generic.
+
 ## 0.2.0
 
 - Add `stations` (user-invoked): one Claude Code config folder per context (work, personal, ...), picked from the current folder by a `claude()` shell function, with its own tools and login. Backed up per run with a `restore.sh`.

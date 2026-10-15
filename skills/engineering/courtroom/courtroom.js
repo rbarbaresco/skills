@@ -37,7 +37,7 @@ const EVIDENCE = {
         required: ['claim', 'source', 'confidence'],
         properties: {
           claim: { type: 'string' },
-          source: { type: 'string', description: 'file:line, monitor/SLO id, Sentry issue, PR number, ticket key, query — something a reader can open' },
+          source: { type: 'string', description: 'file:line, monitor/SLO id, error-tracker issue, PR number, ticket key, query — something a reader can open' },
           confidence: { type: 'string', enum: CONFIDENCE },
         },
       },
@@ -181,9 +181,9 @@ const defend = (extra, phaseName) => agent(
 phase('Investigation')
 await investigate([
   ['code', 'the code and its history: where it lives, what it does, who wrote it and why (git log/blame, PR descriptions, linked tickets), and what changed recently'],
-  ['observability', 'production behaviour: Datadog monitors/SLOs/APM spans/logs and Sentry issues — volumes, error rates, latency, since when, trend, best and worst periods'],
-  ['usage', 'who depends on it: callers in other repositories (gh code search across the org), data-warehouse usage, which user personas it serves and how often'],
-  ['organization', 'what people already know: Jira tickets, Confluence pages, Slack threads, past incidents and decisions about it'],
+  ['observability', 'production behaviour: monitors, SLOs, traces, logs and error-tracker issues from whatever monitoring tools this session can reach — volumes, error rates, latency, since when, trend, best and worst periods'],
+  ['usage', 'who depends on it: callers in other repositories (gh code search across the repositories you can access), data-warehouse usage, which user personas it serves and how often'],
+  ['organization', 'what people already know: tickets, docs and wiki pages, chat threads, past incidents and decisions about it'],
 ], 'Investigation')
 log(`Investigation: ${evidence.reduce((n, e) => n + e.facts.length, 0)} facts, ${evidence.reduce((n, e) => n + e.gaps.length, 0)} gaps`)
 
