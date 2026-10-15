@@ -1,0 +1,17 @@
+{
+  "name": "rbarbaresco",
+  "owner": {
+    "name": "Rodrigo Barbaresco",
+    "url": "https://github.com/rbarbaresco"
+  },
+  "description": "Rodrigo Barbaresco's skills, as an installable Claude Code plugin.",
+  "plugins": [
+    {
+      "name": "rbarbaresco-skills",
+      "source": "./",
+      "description": "Everyday skills: courtroom (adversarial rulings on a proposed action) and warm-context (researched domain packs for planning).",
+      "category": "productivity",
+      "keywords": ["skills", "decision-making", "workflows", "research", "planning"]
+    }
+  ]
+}
