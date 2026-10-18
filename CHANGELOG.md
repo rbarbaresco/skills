@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+- Add `be-frank` (user-invoked): compares an idea against alternatives you name, with a sourced feature table, similarity percentages, risks and what to focus on. Asks for what and against instead of assuming them, and stops when the idea is too vague.
+
 ## 0.2.1
 
 - `courtroom`: role prompts and detective briefs no longer assume a specific tool stack (Datadog, Sentry, Jira, Confluence, Slack) or company; examples made generic.
