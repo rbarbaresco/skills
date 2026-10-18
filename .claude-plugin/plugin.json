@@ -1,7 +1,7 @@
 {
   "name": "rbarbaresco-skills",
-  "version": "0.2.1",
-  "description": "Rodrigo Barbaresco's everyday Claude Code skills: adversarial decision rulings (courtroom), researched domain packs for planning (warm-context), and per-context workstation setup (stations).",
+  "version": "0.3.0",
+  "description": "Rodrigo Barbaresco's everyday Claude Code skills: adversarial decision rulings (courtroom), researched domain packs for planning (warm-context), and per-context workstation setup (stations), and frank comparisons of an idea against existing alternatives (be-frank).",
   "author": {
     "name": "Rodrigo Barbaresco",
     "url": "https://github.com/rbarbaresco"
@@ -13,6 +13,7 @@
   "skills": [
     "./skills/engineering/courtroom",
     "./skills/productivity/warm-context",
-    "./skills/productivity/stations"
+    "./skills/productivity/stations",
+    "./skills/productivity/be-frank"
   ]
 }

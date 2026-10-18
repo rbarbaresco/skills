@@ -31,6 +31,8 @@ Skills are grouped into folders under `skills/`: `engineering/` for code and pro
 
 You start these yourself; Claude never triggers them on its own.
 
+- **[be-frank](./skills/productivity/be-frank/SKILL.md)**: a frank, researched comparison of an idea (app, product, framework, spec) against alternatives you name. You get a feature table with a source for every mark, a similarity percentage per alternative and combined, the differences that matter, the risks, and what to focus on. Claude always asks what to compare against and what the idea is for, and stops to ask questions when the idea is too vague to compare.
+
 - **[courtroom](./skills/engineering/courtroom/SKILL.md)**: put a proposed action on trial as a motion ("fix this now", "approve this RFC", "roll this back") and get a ruling: granted, granted in part, or denied, with the order that follows. Detectives gather evidence, a prosecutor argues for the motion, a defense against, a jury of specialists votes, and a judge rules, with extra hearing rounds when the record is thin. Runs as a multi-agent [workflow](https://code.claude.com/docs/en/workflows) (about 12 to 14 agents per round). Rulings are saved to `~/.claude/courtroom/cases/`.
 
   > **Pro plan:** dynamic workflows are off by default. Turn on the **Dynamic workflows** row in `/config` before the first run.
