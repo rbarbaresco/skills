@@ -33,18 +33,14 @@ If the diff is empty, say so and stop.
 
 ## 2. Intake
 
-Ask everything the flags didn't answer in **one** `AskUserQuestion` call. Option lists max out at four, so lenses are split across two questions.
+Ask everything the flags didn't answer in **one** `AskUserQuestion` call.
 
-1. **What in the change?** (`multiSelect`): **Bugs**: correctness, edge cases, error handling; security, performance and tests as sub-checks · **Patterns**: matches how this repo does things · **Flow**: the execution and data path end to end · **Nitpicks**: naming, style, small cleanups.
-2. **What around it, or a preset?** (`multiSelect`): **History**: why the touched code is shaped this way, and whether the change undoes a past decision · **Blast radius**: other callers, and sibling paths with the same problem · **Default review**: bugs, patterns, flow and blast radius, the everyday review without the history mining and nitpicks · **All lenses**: everything above.
-
-   Picks across both questions add up: Default review plus History runs five lenses.
+1. **Which lenses?** (`multiSelect`): **Default review (Recommended)**: bugs (with security, performance and tests), patterns, flow and blast radius · **+ History**: why the touched code is shaped this way, and whether the change undoes a past decision · **+ Nitpicks**: naming, style, small cleanups · **All lenses**. Other names lenses by hand ("bugs, flow"). Picks add up: Default review plus History runs five lenses. History alone runs only history.
+2. **Target**, only when it still needs confirming (step 1).
 3. **Persona** (single select). The first option is the default, labelled with where it came from, for example *"Senior staff engineer (from ~/AGENTS.md)"*. Find it in the instruction files already loaded in this session, closest wins: the repo's `AGENTS.md` / `CLAUDE.md` if it has a role section, then the user-level file (`~/.claude/CLAUDE.md`, or `~/AGENTS.md` when loaded), then "staff engineer of this repo". Fill the other three from: **staff engineer**, **on-call engineer**, **security reviewer**, **maintainer/newcomer**, skipping whichever the default already is. Other takes free text ("a PM checking scope").
 4. **Whose code?** (single select): **Mine** · **Someone else's**. Skip it, and treat the code as someone else's, when the target is a PR whose author (`author.login`) isn't the user running the skill (`gh api user --jq .login`). Otherwise recommend the option that matches the commit authors against `git config user.email`.
 
-If the target still needs confirming, add it to the same call in place of whichever question a flag already answered, or ask it first if all four are needed.
-
-No lens picked means the user skipped both questions: ask once more. Don't fall back to a preset on your own, because the cost and noise of a review depends on it.
+No lens picked means the user skipped the question: ask once more. Don't fall back to a preset on your own, because the cost and noise of a review depends on it.
 
 Then a **second** `AskUserQuestion` call, with whichever of these weren't answered:
 

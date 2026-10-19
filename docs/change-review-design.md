@@ -58,7 +58,7 @@ Every run starts with a short guided intake. Each question can be skipped with a
 7. **Default review:** bugs, patterns, flow and blast radius, the everyday review when neither history nor nitpicks matter. Added after first use: picking four lenses one by one for the common case was slow.
 8. **All.**
 
-The picker is two multi-select questions because `AskUserQuestion` allows four options per question: *What in the change?* (bugs, patterns, flow, nitpicks) and *What around it, or a preset?* (history, blast radius, default review, all). Picks across both add up.
+The picker is one multi-select question, built around the presets because `AskUserQuestion` allows four options per question: default review, + history, + nitpicks, all. Picks add up, and free text names single lenses by hand ("bugs, flow"). An earlier version split the six lenses and two presets across two questions, which read as the same question asked twice.
 
 ### Personas
 
