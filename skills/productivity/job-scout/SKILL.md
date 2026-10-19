@@ -81,6 +81,8 @@ In chat. Don't write a file or publish a page unless the user asks; then offer a
 
 **Rank by fit to the whole brief**, not by match mode alone: must-haves the posting confirms, then how many preferences it meets (stack priority, pay against the floor, seniority stated), then freshness. A posting whose fine print breaks a must-have (a timezone overlap outside the user's range, pay that tops out under the floor) is dropped, not ranked low. Keep the dropped list in case the user asks for it.
 
+Write every link as the bare full URL (`https://...`), never as `[text](url)` or `<url>`: the user copies the list into chats, where only the raw URL survives, and chat clients still make it clickable.
+
 Put each caveat next to its posting, never in a separate section the reader has to match back by number.
 
 Fit icons, one per posting:
@@ -96,7 +98,8 @@ Fit icons, one per posting:
 ## Top 5
 
 ### 1. 🟢 <Role> · <Company> (<kind>)
-<Location / work mode> · <pay, or "pay not listed"> · <main stack> · posted <date> · [<ATS name>](url)
+<Location / work mode> · <pay, or "pay not listed"> · <main stack> · posted <date> · <ATS name>
+<full URL, bare>
 
 <One or two short paragraphs: why this ranks here against the brief (which must-haves and preferences it meets, what stands out
 about the team or the work), and what to check before applying (pay band for the user's country, seniority, overlap hours).>
@@ -105,7 +108,7 @@ about the team or the work), and what to check before applying (pay band for the
 
 ## Also open
 
-- 🟠 <Role> · <Company> · <location> · <pay or "pay not listed"> · [link](url): <the one reason it's not in the top 5>
+- 🟠 <Role> · <Company> · <location> · <pay or "pay not listed"> · <full URL, bare> — <the one reason it's not in the top 5>
 - ...
 
 <One line offering more, for example: "Want more? How this was searched and what was dropped · market notes · a wider search · save as a file."
