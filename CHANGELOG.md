@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+- Add `change-review` (user-invoked): reviews a change through the lenses you pick and ranks findings for a persona you pick, with every finding grounded in `file:line`, commits, PRs or callers, and explained to what you say you already know about the language and the repo. The report is a numbered list, so findings copy cleanly. One read-only `change-review-lens` agent per lens, in parallel. Applies only ticked fixes on your code; drafts PR comments for someone else's and posts after one confirmation.
+
 ## 0.3.0
 
 - Add `be-frank` (user-invoked): compares an idea against alternatives you name, with a sourced feature table, similarity percentages, risks and what to focus on. Asks for what and against instead of assuming them, and stops when the idea is too vague.
