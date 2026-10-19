@@ -39,7 +39,7 @@ Defaults the user can change through "Other" or in the brief: language of work a
 
 "Any" is a fine answer to a required question, but only if the user says it. Silence isn't "any". If the request is too thin to search at all ("find me a job"), say so and ask; don't run a broad search to have something to show.
 
-**Round 2: filters.** Ask the filter questions in one call (or one numbered message).
+**Round 2: filters.** Ask the filter questions in one call (or one numbered message). Follow-ups that depend on a round-1 answer go first in this call: the adjacent set to trim when the mode is *similar*, and "remote from where" when the answer was remote. If that puts the call over the tool's limit, leave out Stack first, then Seniority, and show them as "any" in the search brief, where the user can correct them.
 
 **Then search.** Once nothing is left to ask, show the **search brief** as text (role and mode with the adjacent titles if *similar*, location and work mode, company kind, the filters, the defaults) and start searching in the same turn. Don't ask the user to confirm it or to start; they can interrupt to correct it.
 
@@ -61,7 +61,7 @@ Use regional boards from the reference for the brief's region. Big boards (Linke
    - `python3 -I fetch.py boards --out $OUT --title '<regex>' '<keyword>' ...`: Himalayas, Remotive, Remote OK, Jobicy, Get on Board and the latest HN thread. A few keyword variants are enough ("backend engineer", "senior backend"). Its last line lists ATS slugs found in those postings.
    - The `site:` web searches on ATS hosts and the region's boards from the reference.
    - Searches for companies that fit the company kind and region (for example the YC directory for startups).
-2. **Sweep the ATS boards once.** Collect every slug from step 1: the script's slug line, the slugs in `site:` result URLs, and your guesses for the companies you found (a bare slug tries Greenhouse, Lever and Ashby; `gh:x`, `lever:x` or `ashby:x` tries one). Then run `python3 -I fetch.py ats --out $OUT --title '<regex>' <slug> ...` once with all of them. ~50 slugs take under a minute. Run a second sweep only for a lead that turns up later.
+2. **Sweep the ATS boards once.** Collect every slug from step 1: the script's slug line, the slugs in `site:` result URLs, and your guesses for the companies you found (a bare slug tries Greenhouse, Lever and Ashby; `gh:x`, `lever:x` or `ashby:x` tries one). Then run `python3 -I fetch.py ats --out $OUT --title '<regex>' <slug> ...` once with all of them. ~50 slugs take under a minute. Run a second sweep only for a lead that turns up later. A later sweep adds to `ats.jsonl`: boards it fetches again are replaced, the rest are kept.
 3. **Filter against the brief** using the posting itself, not the search snippet: title and match mode, location and remote eligibility (read the fine print: "Remote (US)" is not remote from Portugal), seniority, company kind, exclusions. The full text of every posting is in `$OUT/ats.jsonl` and `$OUT/boards.jsonl` (one JSON object per line: `src`, `company`, `id`, `title`, `location`, `pay`, `posted`, `url`, `text`). Read the fine print from there with a short script or `grep`. Don't fetch those postings again.
 
 Stop collecting once you have about twice the requested count of plausible candidates. If a source fails, the script prints `FAILED`. Note it for the closing line and move on.

@@ -8,6 +8,7 @@
 
 Every row has: src, company, id, title, location, pay, posted, url, text (plain, capped).
 The full boards are kept, so "is this posting still open?" is a lookup in ats.jsonl.
+A later run adds to the file: boards it fetches again are replaced, everything else is kept.
 stdout: rows whose title matches --title, per-source counts and failures, and ATS slugs
 spotted in board rows (feed those to `ats`).
 """
@@ -15,14 +16,19 @@ import argparse, html, json, os, re, sys, threading, time, urllib.parse, urllib.
 from concurrent.futures import ThreadPoolExecutor
 
 UA = 'Mozilla/5.0 (job-scout)'
-PER_HOST = 4  # concurrent requests per host; the reference asks for a few per second at most
-_sems, _lock = {}, threading.Lock()
+PER_HOST = 4  # concurrent requests per host
+GAP = 0.3  # seconds between request starts per host; the reference asks for a few per second at most
+_sems, _next, _lock = {}, {}, threading.Lock()
 
 
 def get(url):
     host = urllib.parse.urlsplit(url).netloc
     with _lock:
         sem = _sems.setdefault(host, threading.Semaphore(PER_HOST))
+        now = time.monotonic()
+        start = max(now, _next.get(host, 0))
+        _next[host] = start + GAP
+    time.sleep(start - now)
     with sem:
         req = urllib.request.Request(url, headers={'User-Agent': UA})
         with urllib.request.urlopen(req, timeout=15) as r:
@@ -151,7 +157,7 @@ def ashby(slug):
 
 ATS = dict(gh=greenhouse, lever=lever, ashby=ashby)
 # shortcut: Lever's EU host (api.eu.lever.co) isn't tried; add "lever-eu" here if EU-heavy searches miss boards.
-SLUG_RE = re.compile(r'(?:boards|job-boards)(?:\.eu)?\.greenhouse\.io/(?:embed/job_board\?for=)?([\w-]+)'
+SLUG_RE = re.compile(r'(?:boards|job-boards)(?:\.eu)?\.greenhouse\.io/(?:embed/job_(?:board|app)\?for=)?([\w-]+)'
                      r'|jobs\.lever\.co/([\w.-]+)|jobs\.ashbyhq\.com/([\w.%-]+)', re.I)
 
 
@@ -160,7 +166,7 @@ def slugs_in(rows):
     for r in rows:
         for m in SLUG_RE.finditer(r['url'] + ' ' + r['text']):
             gh, lv, ab = m.groups()
-            found.add(f'gh:{gh}' if gh else f'lever:{lv}' if lv else f'ashby:{urllib.parse.unquote(ab)}')
+            found.add(f'gh:{gh}' if gh else f'lever:{lv}' if lv else f'ashby:{ab}')
     return sorted(found)
 
 
@@ -192,6 +198,14 @@ def main():
     p.add_argument('--out', required=True)
     p.add_argument('--title', help='regex; only matching titles are printed (all rows are saved)')
     a = p.parse_args()
+    try:
+        title = re.compile(a.title, re.I) if a.title else None
+    except re.error as e:
+        p.error(f'bad --title regex: {e}')
+    if a.mode == 'ats':
+        bad = [n for n in a.names if n.rpartition(':')[0] not in ('', *ATS)]
+        if bad:
+            p.error(f'unknown ATS in {", ".join(bad)}; use gh:, lever:, ashby: or a bare slug')
     os.makedirs(a.out, exist_ok=True)
 
     if a.mode == 'boards':
@@ -203,22 +217,29 @@ def main():
             tasks += [(f'{k}:{slug}', ATS[k], slug) for k in ([kind] if kind else ATS)]
     rows, status = run(tasks)
 
-    seen, uniq = set(), []
+    # Keep earlier runs' rows, except for ATS boards fetched again now (their labels equal src).
+    path = os.path.join(a.out, f'{a.mode}.jsonl')
+    refetched = {l for l, s in status.items() if isinstance(s, int)}
+    kept = []
+    if os.path.exists(path):
+        with open(path) as f:
+            kept = [r for r in map(json.loads, f) if r['src'] not in refetched]
+    seen = {(r['src'].split(':')[0], r['id']) for r in kept}
+    uniq = []
     for r in rows:
         if (r['src'].split(':')[0], r['id']) not in seen:
             seen.add((r['src'].split(':')[0], r['id']))
             uniq.append(r)
-    path = os.path.join(a.out, f'{a.mode}.jsonl')
+    saved = kept + uniq
     with open(path, 'w') as f:
-        f.writelines(json.dumps(r) + '\n' for r in uniq)
+        f.writelines(json.dumps(r) + '\n' for r in saved)
 
-    title = re.compile(a.title, re.I) if a.title else None
     for r in sorted(uniq, key=lambda r: r['posted'], reverse=True):
         if title is None or title.search(r['title']):
             print(' | '.join([r['src'], r['posted'], r['title'], r['company'], r['location'][:100], r['pay'], r['url']]))
-    print(f'\n# {len(uniq)} rows saved to {path}', file=sys.stderr)
+    print(f'\n# {len(uniq)} new rows, {len(saved)} in total, saved to {path}', file=sys.stderr)
     if a.mode == 'ats':
-        found = sorted(l for l, s in status.items() if isinstance(s, int) and s)
+        found = sorted(l for l, s in status.items() if isinstance(s, int))  # 0 = board exists, no openings
         print('# boards found: ' + ', '.join(f'{l} ({status[l]})' for l in found), file=sys.stderr)
         slugs = {l.split(':', 1)[1] for l in status}
         missing = sorted(s for s in slugs if not any(l.endswith(':' + s) for l in found))
