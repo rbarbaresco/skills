@@ -15,7 +15,7 @@ Most review tools read like the same generic reviewer: textbook bugs, nitpicks, 
 /rbarbaresco-skills:change-review my branch --lens history,blast-radius --persona "on-call engineer"
 ```
 
-The target is uncommitted changes, a branch against its base, a commit or range, or a PR number or URL. Claude proposes one if you leave it out. Then it asks, in one go, whatever the flags didn't answer:
+The target is uncommitted changes, a branch against its base, a commit or range, or a PR number or URL. Claude picks one if you leave it out, and starts with a one-sentence summary of what the change does (correct it by replying). Then it asks, in a single prompt, whatever the flags didn't answer:
 
 | Question | Flag |
 |---|---|
@@ -28,14 +28,13 @@ The target is uncommitted changes, a branch against its base, a commit or range,
 
 **Personas** decide *what matters*: staff engineer, on-call engineer, security reviewer, maintainer/newcomer, or free text. The default comes from the role section of your instruction files (repo `AGENTS.md` / `CLAUDE.md` first, then your user-level one), and the picker shows where it came from.
 
-**Knowledge level** decides *how much each finding explains*. Say you don't know the language, and a language issue comes with a plain explanation that doesn't need it; say you're new to the repo, and a flow finding says what that flow is for before telling you to change it.
+**Knowledge level** decides *how the report is written*. An expert gets terse lines in the repo's own terms. Not knowing the language gets effects instead of language jargon, plus a one-line explanation of the feature. New to the repo gets components named by what they do, plus a line on what the flow is for. The finding line itself is rewritten, not just annotated.
 
 ## What you get
 
 ```
 ## 🟡 Ship after 2 fixes
-TL;DR: The retry removal undoes a fix from PR #412 (March outage) and
-two other callers of `send()` still lack the timeout you added here.
+Change: Moves webhook delivery to a background job and drops its retry loop.
 
 1. 🔴 client.py:88 · History: Removes the retry added after the #412 outage.
 2. 🟠 jobs.py:40, sync.py:12 · Blast radius: Same missing timeout, not covered.
@@ -52,7 +51,7 @@ Then:
 
 ## How it works
 
-1. **Target and intake:** resolve the diff, ask the questions above, ask what you already know, and get the author's intent (asked on your code, read from the PR on theirs).
+1. **Target and intake:** resolve the diff, summarize the change (this is also the author intent), then ask the questions above in one prompt.
 2. **Context:** read the repo's `AGENTS.md` / `CLAUDE.md`. Only when history, blast radius or flow is picked: `git blame` each changed block and read the PRs behind the ones that look deliberate.
 3. **Lenses:** one read-only agent per lens, in parallel (one lens runs inline). Agents can't edit files and don't know the persona, so the checks stay the same whoever is reading.
 4. **Merge:** drop findings without evidence, de-duplicate, rank by persona, cut to about 10 findings, explain each to your knowledge level.

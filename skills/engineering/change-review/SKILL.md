@@ -14,13 +14,13 @@ Everything after `/change-review` is the request: a target, plus optional flags 
 - `--mine` / `--theirs`: whose code it is. Skips that question.
 - `--knows "TypeScript, not this repo"`: what the reader already knows. Free text. Skips the knowledge question.
 
-Three ideas run through every step. A **lens** decides *what* gets checked. A **persona** decides *what matters*: how findings rank, which get dropped, how they're phrased. The **knowledge level** decides *how much each finding explains*: a reader who doesn't know the language needs a language issue said in plain terms, and a reader new to the repo needs to be told what "this flow" is before a fix to it means anything. Neither persona nor knowledge level changes which checks run, so lens agents never see them.
+Three ideas run through every step. A **lens** decides *what* gets checked. A **persona** decides *what matters*: how findings rank, which get dropped, how they're phrased. The **knowledge level** decides *how the report is written*: its vocabulary and its length (see "Write to the knowledge level" in step 6). Neither persona nor knowledge level changes which checks run, so lens agents never see them.
 
 Lens instructions live in `${CLAUDE_PLUGIN_ROOT}/skills/engineering/change-review/lenses/<lens>.md`. The read-only agent that runs them is `rbarbaresco-skills:change-review-lens`.
 
 ## 1. Resolve the target
 
-Work out the target from the request. If none is given, propose one: uncommitted changes when `git status` is dirty, otherwise the current branch against the default branch (`git symbolic-ref --short refs/remotes/origin/HEAD`). Ask the user to confirm in the intake below.
+Work out the target from the request. If none is given, pick one: uncommitted changes when `git status` is dirty, otherwise the current branch against the default branch (`git symbolic-ref --short refs/remotes/origin/HEAD`). Say which one you picked in the change summary below; the user corrects it there.
 
 | Target | Diff | Code to read around it |
 |---|---|---|
@@ -31,21 +31,18 @@ Work out the target from the request. If none is given, propose one: uncommitted
 
 If the diff is empty, say so and stop.
 
+**Change summary.** Print one or two plain sentences on what the change does and why, with the target (for example *"PR #482: moves invoice retries from the web request into a background job, so a slow provider no longer times out checkout."*). Read the intent from the PR description, linked ticket and commit messages, or from the diff when there are none. Keep it neutral; it's rewritten for the reader's knowledge level in the report. It doubles as the author intent the lens agents receive, so the user fixes a wrong one by replying, not by answering a question.
+
 ## 2. Intake
 
-Ask everything the flags didn't answer in **one** `AskUserQuestion` call.
+Ask everything the flags didn't answer in **one** `AskUserQuestion` call (at most 4 questions, all together, none in a second round).
 
 1. **Which lenses?** (`multiSelect`): **Default review (Recommended)**: bugs (with security, performance and tests), patterns, flow and blast radius · **+ History**: why the touched code is shaped this way, and whether the change undoes a past decision · **+ Nitpicks**: naming, style, small cleanups · **All lenses**. Other names lenses by hand ("bugs, flow"). Picks add up: Default review plus History runs five lenses. History alone runs only history.
-2. **Target**, only when it still needs confirming (step 1).
-3. **Persona** (single select). The first option is the default, labelled with where it came from, for example *"Senior staff engineer (from ~/AGENTS.md)"*. Find it in the instruction files already loaded in this session, closest wins: the repo's `AGENTS.md` / `CLAUDE.md` if it has a role section, then the user-level file (`~/.claude/CLAUDE.md`, or `~/AGENTS.md` when loaded), then "staff engineer of this repo". Fill the other three from: **staff engineer**, **on-call engineer**, **security reviewer**, **maintainer/newcomer**, skipping whichever the default already is. Other takes free text ("a PM checking scope").
-4. **Whose code?** (single select): **Mine** · **Someone else's**. Skip it, and treat the code as someone else's, when the target is a PR whose author (`author.login`) isn't the user running the skill (`gh api user --jq .login`). Otherwise recommend the option that matches the commit authors against `git config user.email`.
+2. **Persona** (single select). The first option is the default, labelled with where it came from, for example *"Senior staff engineer (from ~/AGENTS.md)"*. Find it in the instruction files already loaded in this session, closest wins: the repo's `AGENTS.md` / `CLAUDE.md` if it has a role section, then the user-level file (`~/.claude/CLAUDE.md`, or `~/AGENTS.md` when loaded), then "staff engineer of this repo". Fill the other three from: **staff engineer**, **on-call engineer**, **security reviewer**, **maintainer/newcomer**, skipping whichever the default already is. Other takes free text ("a PM checking scope").
+3. **Whose code?** (single select): **Mine** · **Someone else's**. Skip it, and treat the code as someone else's, when the target is a PR whose author (`author.login`) isn't the user running the skill (`gh api user --jq .login`). Otherwise recommend the option that matches the commit authors against `git config user.email`.
+4. **What do you already know?** (single select). Name the main language of the change from the changed files' extensions: **Know <lang> and this repo (Recommended)** · **Know <lang>, new to this repo** · **Know this repo, not <lang>** · **New to both**. Other takes free text ("Python, not TypeScript; worked on this repo last year").
 
 No lens picked means the user skipped the question: ask once more. Don't fall back to a preset on your own, because the cost and noise of a review depends on it.
-
-Then a **second** `AskUserQuestion` call, with whichever of these weren't answered:
-
-5. **What do you already know?** (single select). Name the main language of the change from the changed files' extensions: **Know <lang> and this repo (Recommended)** · **Know <lang>, new to this repo** · **Know this repo, not <lang>** · **New to both**. Other takes free text ("Python, not TypeScript; worked on this repo last year").
-6. **Author intent**, on your own code only: what the change was meant to do. Draft it from the commit messages and branch name as the recommended option, or from the diff when there are none (uncommitted work on the default branch). Other corrects it. On someone else's code, read the intent from the PR description, the ticket it links, and the commit messages. Don't ask.
 
 ## 3. Gather context
 
@@ -65,7 +62,7 @@ Two or more: spawn one `rbarbaresco-skills:change-review-lens` agent per lens, *
 
 - the lens file path: `${CLAUDE_PLUGIN_ROOT}/skills/engineering/change-review/lenses/<lens>.md`
 - the target, the diff command and how to read the code around it (from the table in step 1), and the repo root
-- the author intent
+- the change summary from step 1, as the author intent
 - the repo-rules summary from step 3
 - the blame brief, for history, blast radius and flow
 - this line: *"This repo's own instruction files apply to you. Read `AGENTS.md` / `CLAUDE.md` at the repo root if the summary above leaves a question open."*
@@ -86,7 +83,7 @@ The list is the whole report. Detail is pulled on request, not pushed. It's a li
 
 ```
 ## 🟡 Ship after 2 fixes
-TL;DR: <one line a reader can act on without reading further>
+Change: <the step 1 summary, written to the knowledge level>
 
 1. 🔴 client.py:88 · History: Removes the retry added after the #412 outage.
 2. 🟠 jobs.py:40, sync.py:12 · Blast radius: Same missing timeout, not covered.
@@ -97,9 +94,24 @@ Persona: <persona> (<where it came from>) · Lenses: <picked lenses> · Knows: <
 ```
 
 - One line per finding, ordered by severity, not by lens: severity, where, lens, what is wrong. Evidence belongs in "detail N", not in the line.
-- **Explain to the knowledge level.** When the reader lacks the background to read a line, add one indented plain-language line under it: what the language feature does, in terms that don't need the language (for someone who doesn't know it), or what this component or flow is for in the repo (for someone new to it). Add nothing when the reader already knows both.
-- **TL;DR:** if a "Looked for, not found" result undercuts the change's own reason for existing (for example "no checkout caller of `send()` exists in this repo" on a change made for checkout), say it here.
+- **Change:** if a "Looked for, not found" result undercuts the change's own reason for existing (for example "no checkout caller of `send()` exists in this repo" on a change made for checkout), add it as a second line here.
 - Tone follows whose code it is: **blunt** on your own code, **reviewer to peer** on someone else's.
+
+### Write to the knowledge level
+
+Write the whole report, Change line included, for the reader. Two independent gaps, each handled on its own:
+
+| Reader | The finding line | Under it |
+|---|---|---|
+| Knows both | Terse, in the repo's own terms and the language's own idioms. No glossary, no "why this matters" the reader can infer. | Nothing. |
+| Knows the language, new to the repo | Names things by what they do, not by their repo name alone: "the `settle()` job (nightly payout)", not "`settle()`". | One line: what the component or flow is for and who calls it, the minimum to see why the finding matters. |
+| Knows the repo, not the language | Says the effect, not the language term: "this list is shared between calls", not "mutable default argument". | One line: what the language feature does, in terms that don't need the language. |
+| New to both | Both of the above. | Up to two lines, repo context first. |
+
+- The finding line is rewritten, not just annotated. Replace jargon the reader doesn't know with what it means; if the term is worth learning, give it once in parentheses, the first time it appears in the report.
+- A newcomer's explanation is the *minimum* needed to act on the finding. Never a tutorial, never more than the table allows.
+- An expert gets shorter output than the table's default: merge findings that share a root cause, drop "why it matters" clauses, and let `file:line` carry the rest.
+- "detail N" follows the same row: the evidence stays verbatim, the surrounding explanation follows the reader.
 
 On request:
 - **"show all"**: the dropped findings in the same list shape, plus every "Looked for, not found" line from the lenses. A gap the user can't see reads as "checked and fine".
