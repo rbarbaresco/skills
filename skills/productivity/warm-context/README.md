@@ -43,7 +43,7 @@ By default, packs are written to `.warm-context/` in the folder you're working i
 
 The first time it writes a pack, the skill adds a short section to that folder's `AGENTS.md` that points to the catalog, so every later session there knows which packs exist. Commit `.warm-context/` to share packs with your team, or gitignore it to keep them local.
 
-To keep one library for all your projects, set `$WARM_CONTEXT_HOME` (for example `~/warm-context`) and import its `CATALOG.md` from `~/.claude/CLAUDE.md`.
+Only the working folder's own `.warm-context/` is used, never a parent folder's.
 
 ## Limitations
 
