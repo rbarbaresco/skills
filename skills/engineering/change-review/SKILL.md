@@ -20,7 +20,7 @@ Lens instructions live in `${CLAUDE_PLUGIN_ROOT}/skills/engineering/change-revie
 
 ## 1. Resolve the target
 
-Work out the target from the request. If none is given, pick one: uncommitted changes when `git status` is dirty, otherwise the current branch against the default branch (`git symbolic-ref --short refs/remotes/origin/HEAD` is often unset; then `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name` and use `origin/<name>`; without `gh`, try `origin/main`, then `origin/master`). Say which one you picked in the change summary below; the user corrects it there.
+Work out the target from the request. If none is given, pick one: uncommitted changes when `git status` is dirty, otherwise the current branch against the default branch (`git symbolic-ref --short refs/remotes/origin/HEAD` is often unset; then `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name` and use `origin/<name>`; if `gh` is missing or fails, try `origin/main`, then `origin/master`). Say which one you picked in the change summary below; the user corrects it there.
 
 | Target | Diff | Code to read around it |
 |---|---|---|

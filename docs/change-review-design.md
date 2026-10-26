@@ -95,6 +95,7 @@ One intake question switches four things. Lenses, history and blast radius behav
 
 - **Always:** read the repo's `AGENTS.md` / `CLAUDE.md` and the files they import. It is cheap and every lens benefits.
 - **Only when History is picked:** blame mining. Blame runs for each changed block, and PRs are read only for blocks whose code looks deliberate or odd. One git call per block plus one GitHub call per PR adds up, so the default review doesn't pay for it.
+
 ### Evidence
 
 Every finding carries a source a reader can open: `file:line`, a commit SHA, a PR number, a list of callers. A finding without one is dropped, not hedged. This is the same rule as the courtroom detective's, and it keeps the History and Blast radius lenses from inventing a rationale.
