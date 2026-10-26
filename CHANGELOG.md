@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0
+
+- Add `change-review` (user-invoked): reviews a change (uncommitted work, a branch, a commit or a PR) through the lenses you pick, ranks findings for a persona you pick, and writes the report to what you already know of the language and the code. Every finding cites `file:line`, a commit, a PR or callers. Applies only the fixes you tick on your code; on someone else's PR it drafts comments and posts after one confirmation.
+
 ## 0.5.0
 
 - `warm-context`: packs always go to `./.warm-context/` in the working folder, never a parent folder's library (the skill now says so). **Removed:** `$WARM_CONTEXT_HOME` and the shared library; if you set it, packs now go to `./.warm-context/` instead.
