@@ -22,25 +22,30 @@ The target is uncommitted changes, a branch against its base, a commit or range,
 | Which lenses? | `--lens bugs,flow` |
 | Which persona? | `--persona "on-call engineer"` |
 | Whose code? | `--mine` / `--theirs` (skipped when the PR author isn't you) |
-| What do you already know? | `--knows "TypeScript, not this repo"` |
+| What do you already know? | `--knows "TypeScript, not this code"` |
 
 **Lenses** decide *what* is checked: **bugs** (with security, performance and tests as sub-checks), **patterns** (does it match how this repo does things), **flow** (the path end to end), **history** (does it undo a past decision), **blast radius** (who else breaks, which sibling paths still have the problem), **nitpicks**. Two presets: **default** (bugs, patterns, flow, blast radius) and **all**.
 
 **Personas** decide *what matters*: staff engineer, on-call engineer, security reviewer, maintainer/newcomer, or free text. The default comes from the role section of your instruction files (repo `AGENTS.md` / `CLAUDE.md` first, then your user-level one), and the picker shows where it came from.
 
-**Knowledge level** decides *how the report is written*. An expert gets terse lines in the repo's own terms. Not knowing the language gets effects instead of language jargon, plus a one-line explanation of the feature. New to the repo gets components named by what they do, plus a line on what the flow is for. The finding line itself is rewritten, not just annotated.
+**Knowledge level** decides *how the report is written*. Every finding states its consequence at every level; experts get fewer definitions, never fewer consequences. Not knowing the language gets effects instead of language jargon. New to the code gets components named by what they do, plus a line on what the flow is for. The finding is rewritten, not just annotated. A short *How it works* block after the verdict names the rule the findings depend on.
 
 ## What you get
 
 ```
-## 🟡 Ship after 2 fixes
+## ✋ Ship after 2 fixes
 Change: Moves webhook delivery to a background job and drops its retry loop.
 
-1. 🔴 client.py:88 · History: Removes the retry added after the #412 outage.
-2. 🟠 jobs.py:40, sync.py:12 · Blast radius: Same missing timeout, not covered.
-   `send()` posts settlement webhooks to the payment provider; these two jobs call it in a loop.
+How it works: `send()` posts settlement webhooks to the payment provider, and the retry loop was what survived the provider's short outages. Every caller must either retry or set a timeout, or one slow call hangs a worker.
 
-Persona: on-call engineer (from repo AGENTS.md) · Lenses: history, blast radius · Knows: Python, new to this repo
+1. 🔴 Must fix: Webhooks are lost whenever the provider has a short outage.
+   The retry that PR #412 added after the March outage is removed, so one failed call is never sent again. Restore the retry in the new job.
+   client.py:88 · History
+2. 🟠 Should fix: Two nightly jobs can hang forever on a slow provider.
+   `jobs.py` and `sync.py` call `send()` in a loop without the timeout this change adds elsewhere. Pass the same timeout.
+   jobs.py:40, sync.py:12 · Blast radius
+
+Persona: on-call engineer (from repo AGENTS.md) · Lenses: history, blast radius · Knows: Python, new to this code
 3 lower findings dropped. Say "show all", or "detail N" for evidence and fix.
 ```
 

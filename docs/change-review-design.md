@@ -45,7 +45,7 @@ Every run starts with a short guided intake. Each question can be skipped with a
 | Which lenses? | `--lens bugs,flow` | A multi-select picker. |
 | Which persona? | `--persona "on-call"` | A menu plus free text, with a traceable default (see below). |
 | Whose code? | `--mine` / `--theirs` | Skipped when the target is a PR whose author, according to `gh`, isn't the person running the skill. |
-| What do you already know? | `--knows "TypeScript, not this repo"` | Four options naming the change's language (knows both, new to the repo, not the language, new to both) plus free text. Asked in a second call, since the first already holds four questions. Like the persona it never changes which checks run, so lens agents don't see it; it decides how much each finding explains. |
+| What do you already know? | `--knows "TypeScript, not this code"` | Four options naming the change's language (knows both, new to the code, not the language, new to both) plus free text, none marked recommended: knowing a repo doesn't mean knowing the code a change touches. Like the persona it never changes which checks run, so lens agents don't see it; it decides how much each finding explains, never whether it states its consequence. |
 
 ### Lenses
 
@@ -118,22 +118,25 @@ Layout:
 The list is the whole report. Detail is pulled on request, not pushed. A first version used a table; copying a finding out of it dragged the `|` characters along, so it became a numbered list.
 
 ```
-## 🟡 Ship after 2 fixes
-TL;DR: The retry removal undoes a fix from PR #412 (March outage) and
-two other callers of `send()` still lack the timeout you added here.
+## ✋ Ship after 2 fixes
+Change: Moves webhook delivery to a background job and drops its retry loop.
 
-1. 🔴 client.py:88 · History: Removes the retry added after the #412 outage.
-2. 🟠 jobs.py:40, sync.py:12 · Blast radius: Same missing timeout, not covered.
-   `send()` posts settlement webhooks to the payment provider; these two jobs call it in a loop.
-3. 🔵 client.py:102 · Patterns: Uses raw requests; repo wraps it in `http_client`.
+How it works: `send()` posts settlement webhooks to the payment provider, and the retry loop was what survived the provider's short outages. Every caller must either retry or set a timeout, or one slow call hangs a worker.
 
-Persona: on-call engineer (from repo AGENTS.md) · Lenses: history, blast radius, patterns · Knows: Python, new to this repo
+1. 🔴 Must fix: Webhooks are lost whenever the provider has a short outage.
+   The retry that PR #412 added after the March outage is removed, so one failed call is never sent again. Restore the retry in the new job.
+   client.py:88 · History
+2. 🟠 Should fix: Two nightly jobs can hang forever on a slow provider.
+   `jobs.py` and `sync.py` call `send()` in a loop without the timeout this change adds elsewhere. Pass the same timeout.
+   jobs.py:40, sync.py:12 · Blast radius
+
+Persona: on-call engineer (from repo AGENTS.md) · Lenses: history, blast radius · Knows: Python, new to this code
 3 lower findings dropped. Say "show all", or "detail N" for evidence and fix.
 ```
 
-- **Verdict:** 🟢 Ship / 🟡 Ship after fixes / 🔴 Don't ship, plus a one-line TL;DR, so a reader can decide whether to act without reading further.
-- **Severity:** 🔴 must fix, 🟠 should fix, 🔵 consider. Grouped by severity, not by lens.
-- **Items:** one line each, about 10 at most, with one indented plain-language line when the reader's knowledge level needs it. The persona sets the drop threshold, and the footer says how many were dropped.
+- **Verdict:** ✅ Ship / ✋ Ship after fixes / ⛔ Don't ship. Not the severity colours: a 🟡 verdict beside 🟠 findings once made "the yellow items" ambiguous. A *How it works* block follows (the mechanism and what must stay true), because findings listed without it were unreadable to a reviewer who hadn't opened the diff.
+- **Severity:** 🔴 Must fix, 🟠 Should fix, 🔵 Consider, in words next to the emoji. Ordered by severity, not by lens.
+- **Items:** about 10 at most. A plain headline stating the consequence, 1-3 sentences on who it hits and the fix, then `file:line · lens` on the last line. Third person about the code, so a finding can be posted as it is. Findings with a shared cause get one closing line. The persona sets the drop threshold, and the footer says how many were dropped.
 - **On request:** "show all" lists the dropped findings; "detail N" gives the evidence and suggested fix for one finding.
 
 ### PR comments

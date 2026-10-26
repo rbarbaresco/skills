@@ -12,9 +12,9 @@ Everything after `/change-review` is the request: a target, plus optional flags 
 - `--lens bugs,flow`: lenses to run (`bugs`, `patterns`, `flow`, `history`, `blast-radius`, `nitpicks`, `default`, `all`). `default` is bugs, patterns, flow and blast radius. Skips the lens questions.
 - `--persona "on-call engineer"`: whose stakes rank the findings. Free text. Skips the persona question.
 - `--mine` / `--theirs`: whose code it is. Skips that question.
-- `--knows "TypeScript, not this repo"`: what the reader already knows. Free text. Skips the knowledge question.
+- `--knows "TypeScript, not this code"`: what the reader already knows. Free text. Skips the knowledge question.
 
-Three ideas run through every step. A **lens** decides *what* gets checked. A **persona** decides *what matters*: how findings rank, which get dropped, how they're phrased. The **knowledge level** decides *how the report is written*: its vocabulary and its length (see "Write to the knowledge level" in step 6). Neither persona nor knowledge level changes which checks run, so lens agents never see them.
+Three ideas run through every step. A **lens** decides *what* gets checked. A **persona** decides *what matters*: how findings rank, which get dropped, how they're phrased. The **knowledge level** decides *how the report is written*: its vocabulary and the context it adds (see "Write to the knowledge level" in step 6). Neither persona nor knowledge level changes which checks run, so lens agents never see them.
 
 Lens instructions live in `${CLAUDE_PLUGIN_ROOT}/skills/engineering/change-review/lenses/<lens>.md`. The read-only agent that runs them is `rbarbaresco-skills:change-review-lens`.
 
@@ -40,7 +40,7 @@ Ask everything the flags didn't answer in **one** `AskUserQuestion` call (at mos
 1. **Which lenses?** (`multiSelect`): **Default review (Recommended)**: bugs (with security, performance and tests), patterns, flow and blast radius · **+ History**: why the touched code is shaped this way, and whether the change undoes a past decision · **+ Nitpicks**: naming, style, small cleanups · **All lenses**. Other names lenses by hand ("bugs, flow"). Picks add up: Default review plus History runs five lenses. History alone runs only history.
 2. **Persona** (single select). The first option is the default, labelled with where it came from, for example *"Senior staff engineer (from ~/AGENTS.md)"*. Find it in the instruction files already loaded in this session, closest wins: the repo's `AGENTS.md` / `CLAUDE.md` if it has a role section, then the user-level file (`~/.claude/CLAUDE.md`, or `~/AGENTS.md` when loaded), then "staff engineer of this repo". Fill the other three from: **staff engineer**, **on-call engineer**, **security reviewer**, **maintainer/newcomer**, skipping whichever the default already is. Other takes free text ("a PM checking scope").
 3. **Whose code?** (single select): **Mine** · **Someone else's**. Skip it, and treat the code as someone else's, when the target is a PR whose author (`author.login`) isn't the user running the skill (`gh api user --jq .login`). Otherwise recommend the option that matches the commit authors against `git config user.email`.
-4. **What do you already know?** (single select). Name the main language of the change from the changed files' extensions: **Know <lang> and this repo (Recommended)** · **Know <lang>, new to this repo** · **Know this repo, not <lang>** · **New to both**. Other takes free text ("Python, not TypeScript; worked on this repo last year").
+4. **What do you already know?** (single select). Name the main language of the change from the changed files' extensions: **Know <lang> and the code this change touches** · **Know <lang>, new to this code** · **Know this code, not <lang>** · **New to both**. Mark none as recommended: knowing a repo does not mean knowing the code a change touches. Other takes free text ("Python, not TypeScript; worked on this module last year").
 
 No lens picked means the user skipped the question: ask once more. Don't fall back to a preset on your own, because the cost and noise of a review depends on it.
 
@@ -73,29 +73,40 @@ Don't pass the persona, the knowledge level, or whose code it is. Those change r
 
 1. **Drop** any finding without an `evidence` line a reader can open.
 2. **De-duplicate:** findings on the same location with the same root cause become one finding. Keep the strongest evidence and name every lens that found it.
-3. **Rank by persona.** Re-judge each severity from the persona's stakes, using the lens's severity as input, not as the answer. The same missing timeout is the top finding for an on-call engineer ("this hangs a worker at 3am"), minor for a newcomer who would rather flag that `handle()` hides three side effects, and for a staff engineer it ranks and raises whether the other callers lack it too. Final severity: 🔴 must fix · 🟠 should fix · 🔵 consider.
+3. **Rank by persona.** Re-judge each severity from the persona's stakes, using the lens's severity as input, not as the answer. The same missing timeout is the top finding for an on-call engineer ("this hangs a worker at 3am"), minor for a newcomer who would rather flag that `handle()` hides three side effects, and for a staff engineer it ranks and raises whether the other callers lack it too. Final severity: 🔴 Must fix · 🟠 Should fix · 🔵 Consider.
 4. **Cut** to about 10 findings. The persona sets the drop line: drop what this persona wouldn't raise in a real review. Count what was dropped.
-5. **Verdict:** 🟢 Ship (no 🔴 or 🟠) · 🟡 Ship after N fixes (every 🔴 and 🟠 has a small, clear fix) · 🔴 Don't ship (any 🔴 that needs rework or a decision).
+5. **Verdict:** ✅ Ship (no 🔴 or 🟠) · ✋ Ship after N fixes (every 🔴 and 🟠 has a small, clear fix) · ⛔ Don't ship (any 🔴 that needs rework or a decision). The verdict never uses the severity colours, so "the orange items" can only mean findings.
 
 ## 6. Report
 
 The list is the whole report. Detail is pulled on request, not pushed. It's a list, not a table, so any line copies cleanly into a chat, a ticket or a comment.
 
 ```
-## 🟡 Ship after 2 fixes
+## ✋ Ship after 2 fixes
 Change: <the step 1 summary, written to the knowledge level>
 
-1. 🔴 client.py:88 · History: Removes the retry added after the #412 outage.
-2. 🟠 jobs.py:40, sync.py:12 · Blast radius: Same missing timeout, not covered.
-   `send()` posts settlement webhooks to the payment provider; these two jobs call it in a loop.
+How it works: <2-3 sentences: the mechanism the change relies on, and what has to stay true for it to work>
+
+1. 🔴 Must fix: <headline: the consequence, in plain words>
+   <1-3 sentences: who it hits, and the fix>
+   client.py:88 · History
+2. 🟠 Should fix: <headline>
+   <who it hits, and the fix>
+   jobs.py:40, sync.py:12 · Blast radius
+
+Items 1 and 2 share a cause: <the cause>.
 
 Persona: <persona> (<where it came from>) · Lenses: <picked lenses> · Knows: <knowledge level>
 <N> lower findings dropped. Say "show all", or "detail N" for evidence and fix.
 ```
 
-- One line per finding, ordered by severity, not by lens: severity, where, lens, what is wrong. Evidence belongs in "detail N", not in the line.
+- **How it works** comes after the verdict at every knowledge level. It names the rule the findings depend on ("every write path must call X"), so a finding reads as a broken rule, not a riddle.
+- Each finding opens with the consequence as a plain headline, then who it hits and the fix. `file:line` and the lens go on the last line, as a pointer. Evidence stays in "detail N".
+- Ordered by severity, not by lens. Severity is written in words next to the emoji.
+- When findings share a cause, close the list with one line saying which and what the cause is.
 - **Change:** if a "Looked for, not found" result undercuts the change's own reason for existing (for example "no checkout caller of `send()` exists in this repo" on a change made for checkout), add it as a second line here.
-- Tone follows whose code it is: **blunt** on your own code, **reviewer to peer** on someone else's.
+- Write findings in the third person about the code ("`send()` has no timeout"), never to the reader, so step 7 can post them as they are. Tone follows whose code it is: **blunt** on your own code, **reviewer to peer** on someone else's.
+- **Before printing**, reread each finding as someone who has not seen the diff: can they say what breaks, for whom, and what to change? If not, rewrite it.
 
 ### Write to the knowledge level
 
@@ -103,14 +114,14 @@ Write the whole report, Change line included, for the reader. Two independent ga
 
 | Reader | The finding line | Under it |
 |---|---|---|
-| Knows both | Terse, in the repo's own terms and the language's own idioms. No glossary, no "why this matters" the reader can infer. | Nothing. |
-| Knows the language, new to the repo | Names things by what they do, not by their repo name alone: "the `settle()` job (nightly payout)", not "`settle()`". | One line: what the component or flow is for and who calls it, the minimum to see why the finding matters. |
-| Knows the repo, not the language | Says the effect, not the language term: "this list is shared between calls", not "mutable default argument". | One line: what the language feature does, in terms that don't need the language. |
+| Knows both | In the code's own terms and the language's own idioms. No glossary. The consequence stays. | Nothing. |
+| Knows the language, new to this code | Names things by what they do, not by their repo name alone: "the `settle()` job (nightly payout)", not "`settle()`". | One line: what the component or flow is for and who calls it, the minimum to see why the finding matters. |
+| Knows this code, not the language | Says the effect, not the language term: "this list is shared between calls", not "mutable default argument". | One line: what the language feature does, in terms that don't need the language. |
 | New to both | Both of the above. | Up to two lines, repo context first. |
 
 - The finding line is rewritten, not just annotated. Replace jargon the reader doesn't know with what it means; if the term is worth learning, give it once in parentheses, the first time it appears in the report.
 - A newcomer's explanation is the *minimum* needed to act on the finding. Never a tutorial, never more than the table allows.
-- An expert gets shorter output than the table's default: merge findings that share a root cause, drop "why it matters" clauses, and let `file:line` carry the rest.
+- Experts get fewer definitions, never fewer consequences.
 - "detail N" follows the same row: the evidence stays verbatim, the surrounding explanation follows the reader.
 
 On request:
