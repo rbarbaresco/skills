@@ -82,7 +82,7 @@ Don't pass the persona, the knowledge level, or whose code it is. Those change r
 The list is the whole report. Detail is pulled on request, not pushed. It's a list, not a table, so any line copies cleanly into a chat, a ticket or a comment.
 
 ```
-## ✋ Ship after 2 fixes   (or ✅ Ship / ⛔ Don't ship, same layout)
+## ✋ Ship after 2 fixes
 Change: <the step 1 summary, written to the knowledge level>
 
 How it works: <2-3 sentences: the mechanism the change relies on, and what has to stay true for it to work>
@@ -100,6 +100,7 @@ Persona: <persona> (<where it came from>) · Lenses: <picked lenses> · Knows: <
 <N> lower findings dropped. Say "show all", or "detail N" for evidence and fix.
 ```
 
+- The heading is the verdict: `✅ Ship`, `✋ Ship after N fixes` or `⛔ Don't ship`; the layout is the same for all three.
 - **How it works** comes after the verdict at every knowledge level, and also when there are no findings. It names the rule the findings depend on ("every write path must call X"), so a finding reads as a broken rule, not a riddle. State only what the diff, the lens evidence or the blame brief support; where the code gives no basis for a rule, write "unverified" instead of guessing.
 - Each finding opens with the consequence as a plain headline, then who it hits and the fix. `file:line` and the lens go on the last line, as a pointer. Evidence stays in "detail N".
 - Ordered by severity, not by lens. Severity is written in words next to the emoji.

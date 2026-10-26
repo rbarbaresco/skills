@@ -2,7 +2,7 @@
 
 Design decisions for `change-review`, a user-invoked code review skill for this plugin. They came out of a structured interview ("grilling") held before any code was written. Each section records the question, the decision, and the reason, so a later change can tell a deliberate choice from an accident.
 
-Status: built in 0.4.0.
+Status: built in 0.6.0.
 
 ## The problem
 
@@ -182,5 +182,5 @@ Revisit when a third skill with agents arrives, or when one of these lines chang
 - [x] `agents/change-review-lens.md`
 - [x] Entry in `.claude-plugin/plugin.json` `skills`
 - [x] README entry under **User-invoked**
-- [x] Version `0.3.0` → `0.4.0` and a `CHANGELOG.md` entry
+- [x] Version `0.5.0` → `0.6.0` and a `CHANGELOG.md` entry
 - [x] `claude plugin validate . --strict`

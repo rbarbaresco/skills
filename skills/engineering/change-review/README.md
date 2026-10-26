@@ -15,7 +15,7 @@ Most review tools read like the same generic reviewer: textbook bugs, nitpicks, 
 /rbarbaresco-skills:change-review my branch --lens history,blast-radius --persona "on-call engineer"
 ```
 
-The target is uncommitted changes, a branch against its base, a commit or range, or a PR number or URL. Claude picks one if you leave it out, and starts with a one-sentence summary of what the change does (correct it by replying). Then it asks, in a single prompt, whatever the flags didn't answer:
+The target is uncommitted changes, a branch against its base, a commit or range, or a PR number or URL. Claude picks one if you leave it out, and starts with a one- or two-sentence summary of what the change does (correct it by replying). Then it asks, in a single prompt, whatever the flags didn't answer:
 
 | Question | Flag |
 |---|---|
