@@ -1,7 +1,7 @@
 ---
 name: change-review
 disable-model-invocation: true
-description: Review a code change (uncommitted work, a branch against its base, a commit or range, or a PR) through the lenses you pick (bugs, patterns, flow, history, blast radius, nitpicks) and from the viewpoint of a persona (staff engineer, on-call, security, maintainer, or free text) that decides what ranks and what gets dropped, explained to what the reader already knows (the language, the repo). Every finding is grounded in evidence from the repo: file:line, commit SHA, PR number, callers. Output is one verdict and a short numbered list; detail on request. On your own code it applies only the fixes you tick; on someone else's PR it drafts comments and posts only after you confirm. Use when the user runs /change-review, or asks to review a diff, a branch, a commit or a PR with a chosen focus or viewpoint.
+description: Review a code change (uncommitted work, a branch against its base, a commit or range, or a PR) through the lenses you pick (bugs, patterns, flow, history, blast radius, nitpicks) and from the viewpoint of a persona (staff engineer, on-call, security, maintainer, or free text) that decides what ranks and what gets dropped, explained to what the reader already knows (the language, the code). Every finding is grounded in evidence from the repo: file:line, commit SHA, PR number, callers. Output is one verdict, a short how-it-works note and a numbered list of plain-language findings; detail on request. On your own code it applies only the fixes you tick; on someone else's PR it drafts comments and posts only after you confirm. Use when the user runs /change-review, or asks to review a diff, a branch, a commit or a PR with a chosen focus or viewpoint.
 ---
 
 # change-review
@@ -74,7 +74,7 @@ Don't pass the persona, the knowledge level, or whose code it is. Those change r
 1. **Drop** any finding without an `evidence` line a reader can open.
 2. **De-duplicate:** findings on the same location with the same root cause become one finding. Keep the strongest evidence and name every lens that found it.
 3. **Rank by persona.** Re-judge each severity from the persona's stakes, using the lens's severity as input, not as the answer. The same missing timeout is the top finding for an on-call engineer ("this hangs a worker at 3am"), minor for a newcomer who would rather flag that `handle()` hides three side effects, and for a staff engineer it ranks and raises whether the other callers lack it too. Final severity: 🔴 Must fix · 🟠 Should fix · 🔵 Consider.
-4. **Cut** to about 10 findings. The persona sets the drop line: drop what this persona wouldn't raise in a real review. Count what was dropped.
+4. **Cut** to about 6 findings: each now takes three or four lines. The persona sets the drop line: drop what this persona wouldn't raise in a real review. Count what was dropped.
 5. **Verdict:** ✅ Ship (no 🔴 or 🟠) · ✋ Ship after N fixes (every 🔴 and 🟠 has a small, clear fix) · ⛔ Don't ship (any 🔴 that needs rework or a decision). The verdict never uses the severity colours, so "the orange items" can only mean findings.
 
 ## 6. Report
@@ -82,7 +82,7 @@ Don't pass the persona, the knowledge level, or whose code it is. Those change r
 The list is the whole report. Detail is pulled on request, not pushed. It's a list, not a table, so any line copies cleanly into a chat, a ticket or a comment.
 
 ```
-## ✋ Ship after 2 fixes
+## ✋ Ship after 2 fixes   (or ✅ Ship / ⛔ Don't ship, same layout)
 Change: <the step 1 summary, written to the knowledge level>
 
 How it works: <2-3 sentences: the mechanism the change relies on, and what has to stay true for it to work>
@@ -94,32 +94,32 @@ How it works: <2-3 sentences: the mechanism the change relies on, and what has t
    <who it hits, and the fix>
    jobs.py:40, sync.py:12 · Blast radius
 
-Items 1 and 2 share a cause: <the cause>.
+Items 1 and 2 share a cause: <the cause>.   (only when they do)
 
 Persona: <persona> (<where it came from>) · Lenses: <picked lenses> · Knows: <knowledge level>
 <N> lower findings dropped. Say "show all", or "detail N" for evidence and fix.
 ```
 
-- **How it works** comes after the verdict at every knowledge level. It names the rule the findings depend on ("every write path must call X"), so a finding reads as a broken rule, not a riddle.
+- **How it works** comes after the verdict at every knowledge level, and also when there are no findings. It names the rule the findings depend on ("every write path must call X"), so a finding reads as a broken rule, not a riddle. State only what the diff, the lens evidence or the blame brief support; where the code gives no basis for a rule, write "unverified" instead of guessing.
 - Each finding opens with the consequence as a plain headline, then who it hits and the fix. `file:line` and the lens go on the last line, as a pointer. Evidence stays in "detail N".
 - Ordered by severity, not by lens. Severity is written in words next to the emoji.
 - When findings share a cause, close the list with one line saying which and what the cause is.
 - **Change:** if a "Looked for, not found" result undercuts the change's own reason for existing (for example "no checkout caller of `send()` exists in this repo" on a change made for checkout), add it as a second line here.
-- Write findings in the third person about the code ("`send()` has no timeout"), never to the reader, so step 7 can post them as they are. Tone follows whose code it is: **blunt** on your own code, **reviewer to peer** on someone else's.
+- Write findings in the third person about the code ("`send()` has no timeout"), never to the reader, so step 7 can reuse the headline and the who/fix sentences. Tone follows whose code it is: **blunt** on your own code, **reviewer to peer** on someone else's.
 - **Before printing**, reread each finding as someone who has not seen the diff: can they say what breaks, for whom, and what to change? If not, rewrite it.
 
 ### Write to the knowledge level
 
 Write the whole report, Change line included, for the reader. Two independent gaps, each handled on its own:
 
-| Reader | The finding line | Under it |
+| Reader | Headline and wording | Extra context line (beyond who/fix) |
 |---|---|---|
-| Knows both | In the code's own terms and the language's own idioms. No glossary. The consequence stays. | Nothing. |
+| Knows both | In the code's own terms and the language's own idioms. No glossary. The consequence stays. | None. |
 | Knows the language, new to this code | Names things by what they do, not by their repo name alone: "the `settle()` job (nightly payout)", not "`settle()`". | One line: what the component or flow is for and who calls it, the minimum to see why the finding matters. |
 | Knows this code, not the language | Says the effect, not the language term: "this list is shared between calls", not "mutable default argument". | One line: what the language feature does, in terms that don't need the language. |
 | New to both | Both of the above. | Up to two lines, repo context first. |
 
-- The finding line is rewritten, not just annotated. Replace jargon the reader doesn't know with what it means; if the term is worth learning, give it once in parentheses, the first time it appears in the report.
+- The headline and wording are rewritten, not just annotated. Replace jargon the reader doesn't know with what it means; if the term is worth learning, give it once in parentheses, the first time it appears in the report.
 - A newcomer's explanation is the *minimum* needed to act on the finding. Never a tutorial, never more than the table allows.
 - Experts get fewer definitions, never fewer consequences.
 - "detail N" follows the same row: the evidence stays verbatim, the surrounding explanation follows the reader.
@@ -133,6 +133,6 @@ On request:
 **Your own code.** Offer fixes with a multi-select `AskUserQuestion`, each fix described to the reader's knowledge level. Three findings or fewer: one option each, plus **None**. More: **All 🔴 and 🟠** · **All 🔴** · **None**, and Other takes finding numbers ("1, 3, 5"). Apply only what is ticked, in this session (the lens agents can't edit). Don't stage or commit; say which files changed.
 
 **Someone else's code.** Never edit. If the target isn't a PR, the review ends at the report. If it is, offer to draft comments; draft only on yes.
-- Comments are for the PR's author, not for the reader, so the knowledge level doesn't apply to them.
+- Comments are for the PR's author, not for the reader, so the knowledge level doesn't apply to them. A draft is the finding's headline plus its who/fix sentence: drop the severity label, the `file:line · lens` line (the comment is already anchored there) and any gloss written for the reader.
 - Length follows severity so a comment never discourages reading. 🔴: one short paragraph, what breaks and why, with a link to the evidence. 🟠 / 🔵: one or two sentences. No headers, no code dumps, no restating the diff. Write a longer version only if the user asked for "detail N" and wants to post that.
 - Show every draft in chat with its `file:line`, then ask once to post the whole batch. On yes, post them as one review with inline comments: `gh api repos/<owner>/<repo>/pulls/<n>/reviews --method POST --input <json>` with `event: "COMMENT"`, `commit_id: <headRefOid>`, and `comments: [{path, line, side: "RIGHT", body}]`. A comment whose line isn't in the diff goes in the review `body` instead. Nothing is ever posted without that confirmation.

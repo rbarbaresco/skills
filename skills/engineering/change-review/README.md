@@ -41,7 +41,7 @@ How it works: `send()` posts settlement webhooks to the payment provider, and th
 1. 🔴 Must fix: Webhooks are lost whenever the provider has a short outage.
    The retry that PR #412 added after the March outage is removed, so one failed call is never sent again. Restore the retry in the new job.
    client.py:88 · History
-2. 🟠 Should fix: Two nightly jobs can hang forever on a slow provider.
+2. 🟠 Should fix: Two jobs can hang forever on a slow provider.
    `jobs.py` and `sync.py` call `send()` in a loop without the timeout this change adds elsewhere. Pass the same timeout.
    jobs.py:40, sync.py:12 · Blast radius
 
@@ -59,7 +59,7 @@ Then:
 1. **Target and intake:** resolve the diff, summarize the change (this is also the author intent), then ask the questions above in one prompt.
 2. **Context:** read the repo's `AGENTS.md` / `CLAUDE.md`. Only when history, blast radius or flow is picked: `git blame` each changed block and read the PRs behind the ones that look deliberate.
 3. **Lenses:** one read-only agent per lens, in parallel (one lens runs inline). Agents can't edit files and don't know the persona, so the checks stay the same whoever is reading.
-4. **Merge:** drop findings without evidence, de-duplicate, rank by persona, cut to about 10 findings, explain each to your knowledge level.
+4. **Merge:** drop findings without evidence, de-duplicate, rank by persona, cut to about 6 findings, explain each to your knowledge level.
 
 ## Limitations
 

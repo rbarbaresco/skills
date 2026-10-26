@@ -126,7 +126,7 @@ How it works: `send()` posts settlement webhooks to the payment provider, and th
 1. 🔴 Must fix: Webhooks are lost whenever the provider has a short outage.
    The retry that PR #412 added after the March outage is removed, so one failed call is never sent again. Restore the retry in the new job.
    client.py:88 · History
-2. 🟠 Should fix: Two nightly jobs can hang forever on a slow provider.
+2. 🟠 Should fix: Two jobs can hang forever on a slow provider.
    `jobs.py` and `sync.py` call `send()` in a loop without the timeout this change adds elsewhere. Pass the same timeout.
    jobs.py:40, sync.py:12 · Blast radius
 
@@ -136,7 +136,7 @@ Persona: on-call engineer (from repo AGENTS.md) · Lenses: history, blast radius
 
 - **Verdict:** ✅ Ship / ✋ Ship after fixes / ⛔ Don't ship. Not the severity colours: a 🟡 verdict beside 🟠 findings once made "the yellow items" ambiguous. A *How it works* block follows (the mechanism and what must stay true), because findings listed without it were unreadable to a reviewer who hadn't opened the diff.
 - **Severity:** 🔴 Must fix, 🟠 Should fix, 🔵 Consider, in words next to the emoji. Ordered by severity, not by lens.
-- **Items:** about 10 at most. A plain headline stating the consequence, 1-3 sentences on who it hits and the fix, then `file:line · lens` on the last line. Third person about the code, so a finding can be posted as it is. Findings with a shared cause get one closing line. The persona sets the drop threshold, and the footer says how many were dropped.
+- **Items:** about 6 at most (each takes three or four lines). A plain headline stating the consequence, 1-3 sentences on who it hits and the fix, then `file:line · lens` on the last line. Third person about the code, so a PR comment can reuse the headline and the who/fix sentences. Findings with a shared cause get one closing line. The persona sets the drop threshold, and the footer says how many were dropped.
 - **On request:** "show all" lists the dropped findings; "detail N" gives the evidence and suggested fix for one finding.
 
 ### PR comments
