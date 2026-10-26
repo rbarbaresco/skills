@@ -2,7 +2,7 @@
 
 ## 0.6.0
 
-- Add `change-review` (user-invoked): reviews a change through the lenses you pick and ranks findings for a persona you pick, with every finding grounded in `file:line`, commits, PRs or callers, with the report written to what you say you already know about the language and the code. It opens with a one- or two-sentence summary of the change, and the report is a numbered list of plain-language findings (consequence first, a *How it works* block after the verdict), so findings copy cleanly. One read-only `change-review-lens` agent per lens, in parallel. Applies only ticked fixes on your code; drafts PR comments for someone else's and posts after one confirmation.
+- Add `change-review` (user-invoked): reviews a change (uncommitted work, a branch, a commit or a PR) through the lenses you pick, ranks findings for a persona you pick, and writes the report to what you already know of the language and the code. Every finding cites `file:line`, a commit, a PR or callers. Applies only the fixes you tick on your code; on someone else's PR it drafts comments and posts after one confirmation.
 
 ## 0.5.0
 

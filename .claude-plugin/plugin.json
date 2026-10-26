@@ -9,13 +9,7 @@
   "homepage": "https://github.com/rbarbaresco/skills",
   "repository": "https://github.com/rbarbaresco/skills",
   "license": "MIT",
-  "keywords": [
-    "skills",
-    "decision-making",
-    "workflows",
-    "research",
-    "planning"
-  ],
+  "keywords": ["skills", "decision-making", "workflows", "research", "planning"],
   "skills": [
     "./skills/engineering/courtroom",
     "./skills/engineering/change-review",

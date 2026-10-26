@@ -94,7 +94,7 @@ One intake question switches four things. Lenses, history and blast radius behav
 ### Context gathering
 
 - **Always:** read the repo's `AGENTS.md` / `CLAUDE.md` and the files they import. It is cheap and every lens benefits.
-- **Only when History, Blast radius or Flow is picked:** blame mining. Blame runs for each changed block, and PRs are read only for blocks whose code looks deliberate or odd. One git call per block plus one GitHub call per PR adds up, so lenses that don't need it don't pay for it.
+- **Only when History is picked:** blame mining. Blame runs for each changed block, and PRs are read only for blocks whose code looks deliberate or odd. One git call per block plus one GitHub call per PR adds up, so the default review doesn't pay for it. (An earlier version also mined for Flow and Blast radius, which made the default preset pay the cost on almost every run.)
 
 ### Evidence
 

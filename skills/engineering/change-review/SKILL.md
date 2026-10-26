@@ -20,7 +20,7 @@ Lens instructions live in `${CLAUDE_PLUGIN_ROOT}/skills/engineering/change-revie
 
 ## 1. Resolve the target
 
-Work out the target from the request. If none is given, pick one: uncommitted changes when `git status` is dirty, otherwise the current branch against the default branch (`git symbolic-ref --short refs/remotes/origin/HEAD`). Say which one you picked in the change summary below; the user corrects it there.
+Work out the target from the request. If none is given, pick one: uncommitted changes when `git status` is dirty, otherwise the current branch against the default branch (`gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`; `git symbolic-ref --short refs/remotes/origin/HEAD` is often unset). Say which one you picked in the change summary below; the user corrects it there.
 
 | Target | Diff | Code to read around it |
 |---|---|---|
@@ -29,13 +29,15 @@ Work out the target from the request. If none is given, pick one: uncommitted ch
 | Commit / range | `git show <sha>` / `git diff <a>..<b>` | `git show <sha>:<path>` |
 | PR | `gh pr diff <n>`; metadata from `gh pr view <n> --json number,title,body,author,baseRefName,headRefOid,url` | `git fetch origin pull/<n>/head` then `git show <headRefOid>:<path>`. Never check out the PR: it would change the user's working tree. |
 
+A PR URL for a repo other than the current one (`gh repo view --json nameWithOwner`) can't be read from here: say so and stop, and tell the user to run the skill from a checkout of that repo.
+
 If the diff is empty, say so and stop.
 
 **Change summary.** Print one or two plain sentences on what the change does and why, with the target (for example *"PR #482: moves invoice retries from the web request into a background job, so a slow provider no longer times out checkout."*). Read the intent from the PR description, linked ticket and commit messages, or from the diff when there are none. Keep it neutral; it's rewritten for the reader's knowledge level in the report. It doubles as the author intent the lens agents receive, so the user fixes a wrong one by replying, not by answering a question.
 
 ## 2. Intake
 
-Ask everything the flags didn't answer in **one** `AskUserQuestion` call (at most 4 questions, all together, none in a second round).
+Ask everything the flags didn't answer in **one** `AskUserQuestion` call (at most 4 questions, all together, none in a second round; the one exception is the lens question below).
 
 1. **Which lenses?** (`multiSelect`): **Default review (Recommended)**: bugs (with security, performance and tests), patterns, flow and blast radius · **+ History**: why the touched code is shaped this way, and whether the change undoes a past decision · **+ Nitpicks**: naming, style, small cleanups · **All lenses**. Other names lenses by hand ("bugs, flow"). Picks add up: Default review plus History runs five lenses. History alone runs only history.
 2. **Persona** (single select). The first option is the default, labelled with where it came from, for example *"Senior staff engineer (from ~/AGENTS.md)"*. Find it in the instruction files already loaded in this session, closest wins: the repo's `AGENTS.md` / `CLAUDE.md` if it has a role section, then the user-level file (`~/.claude/CLAUDE.md`, or `~/AGENTS.md` when loaded), then "staff engineer of this repo". Fill the other three from: **staff engineer**, **on-call engineer**, **security reviewer**, **maintainer/newcomer**, skipping whichever the default already is. Other takes free text ("a PM checking scope").
@@ -48,7 +50,7 @@ No lens picked means the user skipped the question: ask once more. Don't fall ba
 
 **Always.** Read the repo's `AGENTS.md` / `CLAUDE.md` and every file they import (`@path`), plus `CONTRIBUTING.md` if present. Keep a short summary of the rules that touch the changed code for the lens prompts.
 
-**Only when History, Blast radius or Flow is picked: blame mining.** It costs one git call per changed block plus one GitHub call per PR, so lenses that don't need it don't pay for it.
+**Only when History is picked: blame mining.** It costs one git call per changed block plus one GitHub call per PR, so the default review doesn't pay for it. The Flow and Blast radius lenses use the blame brief when it exists.
 
 1. For each changed hunk, `git blame -L <start>,<end> --porcelain <base-or-parent> -- <file>` on the lines around it (the pre-change version) to get the commit that last touched them. A newly added file has no past to blame: blame the existing code it calls into instead, or skip it.
 2. Only for blocks that look deliberate or odd (a guard, a retry, a special case, a magic number, a "don't" comment, code the change deletes), find that commit's PR (`gh pr list --state merged --search <sha>`, or the `(#N)` in the commit subject when `gh` isn't available) and read its description and review threads (`gh pr view <n> --comments`), falling back to the full commit message.
@@ -64,7 +66,7 @@ Two or more: spawn one `rbarbaresco-skills:change-review-lens` agent per lens, *
 - the target, the diff command and how to read the code around it (from the table in step 1), and the repo root
 - the change summary from step 1, as the author intent
 - the repo-rules summary from step 3
-- the blame brief, for history, blast radius and flow
+- the blame brief, when History is picked (every lens gets it then)
 - this line: *"This repo's own instruction files apply to you. Read `AGENTS.md` / `CLAUDE.md` at the repo root if the summary above leaves a question open."*
 
 Don't pass the persona, the knowledge level, or whose code it is. Those change ranking, explanation and tone, not the checks.
@@ -75,7 +77,7 @@ Don't pass the persona, the knowledge level, or whose code it is. Those change r
 2. **De-duplicate:** findings on the same location with the same root cause become one finding. Keep the strongest evidence and name every lens that found it.
 3. **Rank by persona.** Re-judge each severity from the persona's stakes, using the lens's severity as input, not as the answer. The same missing timeout is the top finding for an on-call engineer ("this hangs a worker at 3am"), minor for a newcomer who would rather flag that `handle()` hides three side effects, and for a staff engineer it ranks and raises whether the other callers lack it too. Final severity: 🔴 Must fix · 🟠 Should fix · 🔵 Consider.
 4. **Cut** to about 6 findings: each now takes three or four lines. The persona sets the drop line: drop what this persona wouldn't raise in a real review. Count what was dropped.
-5. **Verdict:** ✅ Ship (no 🔴 or 🟠) · ✋ Ship after N fixes (every 🔴 and 🟠 has a small, clear fix) · ⛔ Don't ship (any 🔴 that needs rework or a decision). The verdict never uses the severity colours, so "the orange items" can only mean findings.
+5. **Verdict:** ✅ Ship (no 🔴 or 🟠) · ✋ Ship after N fixes (every 🔴 and 🟠 has a small, clear fix) · ⛔ Don't ship (any 🔴 or 🟠 that needs rework or a decision). The verdict never uses the severity colours, so "the orange items" can only mean findings.
 
 ## 6. Report
 
@@ -136,4 +138,4 @@ On request:
 **Someone else's code.** Never edit. If the target isn't a PR, the review ends at the report. If it is, offer to draft comments; draft only on yes.
 - Comments are for the PR's author, not for the reader, so the knowledge level doesn't apply to them. A draft is the finding's headline plus its who/fix sentence: drop the severity label, the `file:line · lens` line (the comment is already anchored there) and any gloss written for the reader.
 - Length follows severity so a comment never discourages reading. 🔴: one short paragraph, what breaks and why, with a link to the evidence. 🟠 / 🔵: one or two sentences. No headers, no code dumps, no restating the diff. Write a longer version only if the user asked for "detail N" and wants to post that.
-- Show every draft in chat with its `file:line`, then ask once to post the whole batch. On yes, post them as one review with inline comments: `gh api repos/<owner>/<repo>/pulls/<n>/reviews --method POST --input <json>` with `event: "COMMENT"`, `commit_id: <headRefOid>`, and `comments: [{path, line, side: "RIGHT", body}]`. A comment whose line isn't in the diff goes in the review `body` instead. Nothing is ever posted without that confirmation.
+- Show every draft in chat with its `file:line`, then ask once to post the whole batch. On yes, post them as one review with inline comments: `gh api repos/<owner>/<repo>/pulls/<n>/reviews --method POST --input <json>` with `event: "COMMENT"`, `commit_id: <headRefOid>`, and `comments: [{path, line, side, body}]`. Read the diff hunks first: `side: "RIGHT"` for an added or unchanged line shown in a hunk, `side: "LEFT"` (with the old line number) for a deleted line. GitHub rejects the whole review if one line isn't in a hunk, so a comment whose line isn't in any hunk goes in the review `body` instead. Nothing is ever posted without that confirmation.
