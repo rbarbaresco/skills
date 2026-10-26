@@ -1,7 +1,7 @@
 {
   "name": "rbarbaresco-skills",
-  "version": "0.4.0",
-  "description": "Rodrigo Barbaresco's everyday Claude Code skills: adversarial decision rulings (courtroom), lens- and persona-driven change reviews grounded in repo history (change-review), researched domain packs for planning (warm-context), per-context workstation setup (stations), and frank comparisons of an idea against existing alternatives (be-frank).",
+  "version": "0.6.0",
+  "description": "Rodrigo Barbaresco's everyday Claude Code skills: adversarial decision rulings (courtroom), lens- and persona-driven change reviews grounded in repo history (change-review), researched domain packs for planning (warm-context), per-context workstation setup (stations), frank comparisons of an idea against existing alternatives (be-frank), and ad-hoc engineering job searches that ask before assuming the role (job-scout).",
   "author": {
     "name": "Rodrigo Barbaresco",
     "url": "https://github.com/rbarbaresco"
@@ -21,6 +21,7 @@
     "./skills/engineering/change-review",
     "./skills/productivity/warm-context",
     "./skills/productivity/stations",
-    "./skills/productivity/be-frank"
+    "./skills/productivity/be-frank",
+    "./skills/productivity/job-scout"
   ]
 }

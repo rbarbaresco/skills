@@ -10,3 +10,9 @@ This repo is a Claude Code plugin (`rbarbaresco-skills`) and its own single-plug
 - Nothing personal or employer-specific: no names of internal services, companies, people, or local paths.
 - After touching either manifest, run `claude plugin validate . --strict`.
 - Users only receive a change when `version` in `.claude-plugin/plugin.json` is bumped. Bump it (semver) and add a `CHANGELOG.md` entry in the same PR as any user-visible change.
+
+## Warm-context packs
+
+Researched domain knowledge for this project lives in `.warm-context/`. When a task touches a pack listed below, load it with the warm-context skill.
+
+@.warm-context/CATALOG.md
