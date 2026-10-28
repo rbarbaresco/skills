@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1d1d1f; --muted: #5b5b66; --rule: #d9d9de;
+  --link: #0b57d0; --code-bg: #f3f3f5;
+  --gap-bg: #fff6e0; --gap-rule: #b26b00; --note-bg: #eef3fb; --note-rule: #3b6fc4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17171a; --fg: #e7e7ea; --muted: #a3a3ad; --rule: #3a3a40;
+    --link: #8ab4f8; --code-bg: #24242a;
+    --gap-bg: #2e2614; --gap-rule: #e0a33a; --note-bg: #1b2433; --note-rule: #7aa2e3;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 1.0625rem/1.65 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+}
+main { max-width: 70ch; margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+h1, h2, h3, h4 { line-height: 1.25; margin: 2em 0 .5em; scroll-margin-top: 1rem; }
+h1 { font-size: 1.9rem; margin-top: 0; }
+h2 { font-size: 1.4rem; padding-top: .5rem; border-top: 1px solid var(--rule); }
+h3 { font-size: 1.15rem; }
+p, ul, ol, table, pre, blockquote, aside { margin: 0 0 1rem; }
+li + li { margin-top: .3rem; }
+a { color: var(--link); overflow-wrap: anywhere; }
+.lede { font-size: 1.15rem; }
+.meta { color: var(--muted); font-size: .95rem; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+code { background: var(--code-bg); padding: .1em .3em; border-radius: 3px; }
+pre { background: var(--code-bg); padding: .8rem 1rem; overflow-x: auto; border-radius: 4px; }
+pre code { background: none; padding: 0; }
+blockquote { border-left: 3px solid var(--rule); padding-left: 1rem; color: var(--muted); }
+.table-wrap { overflow-x: auto; margin: 0 0 1rem; }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+th, td { text-align: left; vertical-align: top; padding: .45rem .6rem; border-bottom: 1px solid var(--rule); }
+th { font-weight: 600; }
+aside.gap, aside.note { padding: .7rem 1rem; border-left: 4px solid; border-radius: 3px; }
+aside.gap { background: var(--gap-bg); border-color: var(--gap-rule); }
+aside.note { background: var(--note-bg); border-color: var(--note-rule); }
+aside > :last-child { margin-bottom: 0; }
+nav.toc { border: 1px solid var(--rule); border-radius: 4px; padding: .8rem 1rem; margin: 0 0 2rem; }
+nav.toc h2 { font-size: 1rem; margin: 0 0 .4rem; padding: 0; border: 0; }
+nav.toc ol { margin: 0; padding-left: 1.2rem; }
+section.editing-notes { margin-top: 3rem; border-top: 2px solid var(--rule); padding-top: 1rem; }
+section.editing-notes summary { cursor: pointer; }
+section.editing-notes summary h2 { display: inline; font-size: 1.1rem; margin: 0; padding: 0; border: 0; }
+section.editing-notes h3 { font-size: 1rem; margin-top: 1.2rem; }
+@media (max-width: 480px) {
+  body { font-size: 1rem; }
+  main { padding-top: 1.5rem; }
+  h1 { font-size: 1.55rem; }
+}
+@media print {
+  :root { --bg: #fff; --fg: #000; --muted: #333; --link: #000; --code-bg: #f3f3f3; --gap-bg: #fff; --note-bg: #fff; }
+  body { font-size: 11pt; }
+  main { max-width: none; padding: 0; }
+  nav.toc { display: none; }
+  a[href^="http"]:not(.url)::after { content: " (" attr(href) ")"; font-size: .85em; color: #333; }
+  h2, h3 { break-after: avoid; }
+  pre, table, aside, li { break-inside: avoid; }
+  pre { white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; }
+  .table-wrap { overflow: visible; }
+  table { table-layout: fixed; }
+  th, td { overflow-wrap: anywhere; }
+  .editor { display: none !important; }
+}
+</style>
+</head>
+<body>
+<main>
+<article>
+<h1>{{TITLE}}</h1>
+<!-- Optional: <p class="meta">author, date, status, as in the source</p> -->
+<!-- Optional TOC for long documents:
+<nav class="toc" aria-labelledby="toc-h"><h2 id="toc-h">Contents</h2><ol><li><a href="#section-id">Section</a></li></ol></nav>
+-->
+{{BODY}}
+</article>
+<section class="editing-notes editor" aria-labelledby="notes-h">
+<details>
+<summary><h2 id="notes-h">Editing notes</h2> <span class="meta">(for the author; not printed)</span></summary>
+{{NOTES}}
+</details>
+</section>
+</main>
+</body>
+</html>

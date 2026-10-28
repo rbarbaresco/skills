@@ -9,7 +9,7 @@
     {
       "name": "rbarbaresco-skills",
       "source": "./",
-      "description": "Everyday skills: courtroom (adversarial rulings on a proposed action), warm-context (researched domain packs for planning), stations (per-context workstation setup), be-frank (frank comparisons of an idea against existing alternatives) and job-scout (ad-hoc engineering job searches).",
+      "description": "Everyday skills: courtroom (adversarial rulings on a proposed action), warm-context (researched domain packs for planning), stations (per-context workstation setup), be-frank (frank comparisons of an idea against existing alternatives), job-scout (ad-hoc engineering job searches) and uncomplicate (rewrites hard-to-follow documents as clear, standalone HTML).",
       "category": "productivity",
       "keywords": ["skills", "decision-making", "workflows", "research", "planning"]
     }

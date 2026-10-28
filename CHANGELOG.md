@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0
+
+- Add `uncomplicate` (user-invoked): rewrites a hard-to-follow document for its reader and delivers it as a standalone HTML page whose editing notes stay on screen and are left out of print. Reorganizes before polishing, writes for readers whose first language isn't the document's, keeps every fact and qualification, flags missing information in place instead of inventing it, and leaves already-clear documents mostly alone. A bundled stdlib Python checker allows only the tags the template uses, so it catches most unescaped markup (not ordinary element names like `<p>`), scripts and anything loaded from the network, plus broken internal links and skipped headings; print never cuts off code or tables.
+
 ## 0.5.0
 
 - `warm-context`: packs always go to `./.warm-context/` in the working folder, never a parent folder's library (the skill now says so). **Removed:** `$WARM_CONTEXT_HOME` and the shared library; if you set it, packs now go to `./.warm-context/` instead.
