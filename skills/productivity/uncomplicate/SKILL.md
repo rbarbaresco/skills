@@ -39,7 +39,7 @@ Keep the document's language; do not translate unless asked. Keep its register: 
 
 ## When the document is already clear
 
-Change little and say so. Every edit has a cost, because the author has to review it and may lose phrasing they chose. Fix real problems, and leave working sentences alone. For the second-language reader, a rare word, an idiom or a replaceable phrasal verb is a real problem even in a clear document, so replace that word or phrase and nothing around it. That includes a common word used in a non-literal sense ("the Wi-Fi is up"); check that the plain word keeps the meaning ("up" here means working, so "working", not "on"); an undefined term and a buried decision are real problems too. A sentence that is only longer or less elegant than you would write is not. Still deliver the HTML. Presentation can still help: a bold key word or a visible warning box costs the author nothing to review. "I changed two things, and here is why the rest stays" is a good result.
+Change little and say so. Every edit has a cost, because the author has to review it and may lose phrasing they chose. Fix only real problems for the reader, such as an undefined term or a buried decision or warning, and leave the wording alone. Don't make word-level swaps for the second-language reader here: the plain-wording rules in step 5 are for documents that need a rewrite, and in a clear document each swap costs the author a review for little gain. A sentence that is only longer or less elegant than you would write is not a problem either. Still deliver the HTML. Presentation can still help: a bold key word or a visible warning box costs the author nothing to review. "I changed two things, and here is why the rest stays" is a good result.
 
 ## Output
 
