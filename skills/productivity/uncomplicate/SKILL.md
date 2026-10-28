@@ -1,5 +1,6 @@
 ---
 name: uncomplicate
+disable-model-invocation: true
 description: Rewrites an existing document so its reader can follow it and find what matters with less effort. It reorganizes before it polishes, keeps every fact and qualification, flags gaps instead of filling them, and delivers the result as a standalone, readable HTML file with a short note on what changed. Use when the user shares a doc, spec, RFC, report, email, README, policy or notes and asks to make it clearer, simpler, easier to read, less dense, less confusing, better organized, "less AI-sounding", or to "uncomplicate", "clean up", "untangle" or "rewrite for <audience>". It applies to human-written text too. Not for writing a new document from scratch, copyediting typos only, translation, or fact-checking.
 ---
 

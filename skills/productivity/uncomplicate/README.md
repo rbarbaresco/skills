@@ -2,16 +2,16 @@
 
 Hand Claude a document that is hard to follow, whether that's dense, rambling, buried in AI filler, or just badly ordered, and get back a version its reader can follow on one read. The result comes as a standalone HTML page you can open, share or print.
 
-**Type:** model-invoked. Claude uses it when you ask to make a document clearer, simpler or better organized. You can also call it by name: `/rbarbaresco-skills:uncomplicate`.
+**Type:** user-invoked. Run `/rbarbaresco-skills:uncomplicate` yourself; Claude never starts it on its own.
 
 ## Usage
 
 ```
-uncomplicate docs/rate-limit-spec.md — it's going to partner engineers who don't know our internals
+/rbarbaresco-skills:uncomplicate docs/rate-limit-spec.md — it's going to partner engineers who don't know our internals
 ```
 
 ```
-this email is impossible to follow, can you clean it up so the team gets what was decided?
+/rbarbaresco-skills:uncomplicate email.md — people keep asking what was actually decided
 ```
 
 It works on human-written text as well as AI-heavy text. If the reader or purpose isn't clear from the document and the answer would change the rewrite, Claude asks; otherwise it infers them and tells you what it assumed.
