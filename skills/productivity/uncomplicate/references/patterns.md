@@ -13,7 +13,7 @@ Each pattern costs the reader something. Edit it only when it does. None of thes
 | **Split topic.** One subject spread over three places, mixed with others. | Assembling it themselves. | Group it. | The document's order is fixed (legal clauses, numbered steps). |
 | **Templated items.** Every list item or section built from the same mold, often with a bold label. | Scanning labels that carry no information. | Plain sentences, or a table if items really share fields. | Items really are parallel records. |
 | **Empty framing.** Openers ("In today's fast-paced world"), send-offs ("The future looks bright"), headings that restate the next sentence. | Reading words with no content. | Cut. Start with the first real fact; end on the last. | Never, unless it is a quote. |
-| **Carryover context.** "As discussed", "the other approach", "per the earlier thread": references to something the reader has not seen. | Missing context they cannot recover. | Explain it in a sentence, or flag it as a gap if you cannot. | The reader certainly has that context (a reply in a thread). |
+| **Carryover context.** "As discussed", "the other approach", "per the earlier thread": references to something the reader has not seen. | Missing context they cannot recover. | Flag it as a gap, unless the document itself explains it elsewhere. | The reader certainly has that context (a reply in a thread). |
 
 ## Wording
 
@@ -30,13 +30,13 @@ Each pattern costs the reader something. Edit it only when it does. None of thes
 
 ## Words a second-language reader trips on
 
-The reader may be reading in their second language. Each of these makes them stop and decode, so replace it with a plain, literal version.
+The reader may be reading in their second language. Each of these makes them stop and decode, so replace it with a plain, literal version that keeps the meaning. Not in an already-clear document: there, leave the wording alone (see SKILL.md).
 
 | Pattern | Instead | Leave it when |
 |---|---|---|
 | **Idioms and figures of speech.** "Ballpark figure", "low-hanging fruit", "on the same page", "drop the ball". | "Rough estimate", "easy first fixes", "agree", "miss". | It is quoted speech or a name. |
 | **Phrasal verbs** with a one-word equivalent. "Call off", "come across", "put off", "figure out". | "Cancel", "find", "delay", "work out" or "understand". | The phrasal verb is the common form and the alternative is rarer ("log in", "set up", "back up" in software). |
-| **Rare or formal words.** "Commence", "utilize", "ascertain", "forthwith", "aforementioned". | "Start", "use", "find out", "now", "this". | The term is legal or technical and the reader must recognize it. Then explain it once. |
+| **Rare or formal words.** "Commence", "utilize", "ascertain", "forthwith", "aforementioned". | "Start", "use", "find out", "now", "this". | The term is legal or technical and the reader must recognize it. Then explain it once, from its dictionary meaning. |
 | **Unexplained abbreviations** and in-group shorthand. "EOD", "WFH", "TBD", "LGTM". | Spell it out the first time, or use the plain phrase. | The abbreviation is the common name (API, PDF, URL). |
 | **Negatives stacked or delayed.** "Not unlikely", "it is not the case that we won't". | Say it positively: "likely", "we will". | The double negative carries a real nuance the source intends. Then keep it, and flag it if it is unclear. |
 | **Cultural references, irony, humour that depends on wordplay.** | State the point directly. | It is the author's voice in a personal piece and the meaning is clear without it. |

@@ -19,7 +19,7 @@ It works on human-written text as well as AI-heavy text. If the reader or purpos
 ## What you get
 
 - **`<name>.uncomplicated.html`** next to the source (or `uncomplicated.html` for pasted text). It's one self-contained file: no scripts, no external fonts or images, readable on a phone, with dark mode and print styles. Long documents get a linked table of contents.
-- **Plain English for every reader.** It writes as if the reader's first language were something else: common words, no idioms, short sentences, one name for each thing. That makes it easy for everyone.
+- **Plain English for every reader.** On documents that need a rewrite, it writes as if the reader's first language were something else: common words, no idioms, short sentences, one name for each thing. That makes it easy for everyone.
 - **Two layers in one page.** Your notes (what changed, open questions) show on screen, collapsed, and are left out when you print or save as PDF, so the printout is ready to share.
 - **Gaps flagged in place.** Where the document refers to something it never gives (a threshold, a missing section, "the numbers above"), the page marks it instead of making something up. In a plan or spec sent for review, the gaps also go in an "Open items" list that prints, because the reviewers decide them.
 - A short handoff in chat with the path and the changes that matter.
@@ -34,7 +34,7 @@ It works on human-written text as well as AI-heavy text. If the reader or purpos
 
 ## How it works
 
-Structure before wording: Claude states the reader and the core message, lists every fact and qualification, reorganizes (conclusion first where it helps, definitions before use, duplicates merged), then fixes wording (one term per concept, plain words, jargon explained). It checks the draft against the fact list, renders the page from a fixed template, and runs `scripts/check_html.py` (standard-library Python). It allows only the tags the template uses, so it catches unescaped markup like `<user-id>`, scripts and anything that would load from the network, as well as broken internal links and skipped heading levels.
+Structure before wording: Claude states the reader and the core message, lists every fact and qualification, reorganizes (conclusion first where it helps, definitions before use, duplicates merged), then fixes wording (one term per concept, plain words, jargon explained). It checks the draft against the fact list, renders the page from a fixed template, and runs `scripts/check_html.py` (standard-library Python). It allows only the tags the template uses, so it catches most unescaped markup, like `<user-id>` or a stray `<title>` (not ordinary element names like `<p>`), scripts and anything that would load from the network, as well as broken internal links and skipped heading levels.
 
 Test cases live in the plugin's top-level [`evals/uncomplicate/`](../../../evals/uncomplicate) (the CLI won't read an eval folder inside `skills/`). The cases copy their input file with a scaffold script, and the skill needs Bash and Write, so run them with:
 

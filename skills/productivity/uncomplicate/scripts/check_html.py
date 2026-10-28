@@ -26,7 +26,10 @@ SCHEME = re.compile(r"^([a-z][a-z0-9+.-]*):", re.I)
 URL_JUNK = re.compile(r"[\x00-\x20\x7f]")
 # Any of these in CSS can load something, or hide a load behind an escape.
 CSS_LOADS = re.compile(r"url\s*\(|image-set|@import|@font-face|expression\s*\(|\\", re.I)
-EDITOR_TEXT = re.compile(r"^\s*(open question|question for the author|note to the author)\b", re.I)
+# The template's gap label. A source's own "Open question 1:" has no colon right after "question".
+EDITOR_TEXT = re.compile(r"^\s*open question:", re.I)
+# Page-structure tags: once <body> has opened, one of these is source text that was not escaped.
+HEAD_ONLY = {"html", "head", "body", "title", "style", "meta"}
 
 
 class Checker(HTMLParser):
@@ -37,15 +40,25 @@ class Checker(HTMLParser):
         self.title, self.style = "", ""
         self._in = None
         self._stack = []  # [tag, is_editor, holds_editor_content]
+        self._body = False
 
     def _editor_depth(self):
         return any(f[1] for f in self._stack)
 
     def handle_starttag(self, tag, attrs):
-        a = {k.lower(): (v or "") for k, v in attrs}
+        pairs = [(k.lower(), v or "") for k, v in attrs]
+        a = dict(reversed(pairs))  # browsers keep the first of duplicate attributes
         if tag not in ALLOWED_TAGS:
             self.fails.append(f"tag <{tag}> not allowed (unsafe, or source text that needs escaping as &lt;{tag}&gt;)")
-        for k, v in a.items():
+        elif self._body and tag in HEAD_ONLY:
+            self.fails.append(f"<{tag}> inside the body: source text that needs escaping as &lt;{tag}&gt;")
+        if tag == "body":
+            self._body = True
+        if tag == "a" and "href" not in a and "id" not in a:
+            self.fails.append("<a> with no href or id: source text that needs escaping as &lt;a&gt;?")
+        if tag == "details" and "editor" not in a.get("class", "").split() and not self._editor_depth():
+            self.fails.append("<details> outside the editor layer: its content would not print")
+        for k, v in pairs:
             if k.startswith("on"):
                 self.fails.append(f"event attribute {k}= on <{tag}>")
             if k == "ping":
@@ -178,6 +191,12 @@ CASES = [
     ('<a href="#">top</a>', False), ('<a href="other.html">x</a>', False),
     ('<a href="../docs/x.md#setup">x</a>', False), ('<a href="tel:+15551234">call</a>', False),
     ('<p>a<br>b<br/>c</p><hr><p>&lt;user-id&gt; and List&lt;String&gt;</p>', False),
+    ("<p>put the name in the <title> element</p>", True), ("<p>a <style> block</p>", True),
+    ("<p>wrap it in <body></p>", True), ('<a href="javascript:alert(1)" href="https://ok">x</a>', True),
+    ("<p>use <a> for links</p>", True), ("<details><summary>More</summary><p>5 mg daily</p></details>", True),
+    ('<section class="editing-notes editor"><details><summary>N</summary></details></section>', False),
+    ("<p>Open question 1: do we shard?</p>", False), ("<p>Note to the author: keep this.</p>", False),
+    ('<p>Dose<sup><a href="#fn1" id="r1">1</a></sup></p><dl><dt>T</dt><dd>D</dd></dl><p id="fn1">x</p>', False),
 ]
 
 
