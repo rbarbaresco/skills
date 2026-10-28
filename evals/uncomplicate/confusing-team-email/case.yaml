@@ -1,9 +1,0 @@
-schema_version: "1.1"
-name: confusing-team-email
-expected_outcome: |
-  The decision (the deploy freeze moves from Friday 12:00 to Thursday 18:00, starting May 2, for all
-  services; hotfixes need on-call lead approval; revisit end of June) comes first, the April incidents
-  follow as the reason, one term is used for the affected users, and it still reads as a short team
-  email. Delivered as HTML.
-context:
-  scaffold_script: place-files.sh
