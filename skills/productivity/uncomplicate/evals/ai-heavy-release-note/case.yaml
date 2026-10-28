@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: ai-heavy-release-note
+expected_outcome: |
+  An HTML release note that states what changed in Notely 4.2 plainly, with every fact kept (version,
+  date, platforms, sync numbers, CSV export, unchanged price, Windows delay to Q3) and the inflated
+  framing, staged openers, send-off and emoji gone.
+context:
+  scaffold_script: place-files.sh

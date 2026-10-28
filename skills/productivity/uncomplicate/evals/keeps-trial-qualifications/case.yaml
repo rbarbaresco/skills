@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: keeps-trial-qualifications
+expected_outcome: |
+  Plain patient-facing text that is shorter and easier, but keeps every qualification: the 22% is
+  relative and only for adults 40 to 64 with no prior stroke or TIA; over-65s and pregnant or
+  breastfeeding women were not studied; blood-thinner users must talk to their doctor first; the
+  bleeding figures; a single unreplicated 18-month trial of 4,120 people; the absolute rates.
+context:
+  scaffold_script: place-files.sh

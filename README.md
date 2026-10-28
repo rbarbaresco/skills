@@ -55,6 +55,8 @@ Claude reaches for these when a task matches; you can also call them by name.
 
   Packs live in `.warm-context/` inside the folder you're working in, so a project starts with its context already there. On the first pack, the skill adds a pointer to that folder's `AGENTS.md`, so every later session there knows which packs exist. Commit `.warm-context/` to share it, or gitignore it to keep it local.
 
+- **[uncomplicate](./skills/productivity/uncomplicate/SKILL.md)**: rewrites a dense, confusing or AI-heavy document so its reader can follow it on one read, and delivers it as a standalone HTML page (no scripts or external files, phone-friendly, printable). Structure comes before wording: conclusion first where it helps, definitions before use, duplicates merged, one term per concept. Every fact, number, qualification and citation is kept, gaps such as a missing threshold or a section that doesn't exist are flagged in place instead of filled in, and an already-clear document is left mostly alone. Editing notes sit collapsed at the end of the page. Works on human-written text too.
+
 ## License
 
 MIT

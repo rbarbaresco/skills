@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: already-clear-howto
+expected_outcome: |
+  The how-to is already clear, so the text changes little: the five numbered steps, the five-minute
+  fallback to #it-help, and the reset-button warning stay as they are. The notes say little needed
+  changing. Delivered as printable HTML.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: dense-rate-limit-spec
+expected_outcome: |
+  A restructured spec for outside engineers where key, key type, token bucket, burst size and Retry-
+  After are defined before or where they are first used, every number and rule survives exactly, and
+  the five-plus sections get a working table of contents.
+context:
+  scaffold_script: place-files.sh

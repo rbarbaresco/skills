@@ -1,0 +1,7 @@
+# Velorin (fictional drug): summary for the patient information leaflet
+
+It is important to note that, in the context of the evidence currently available to us, Velorin has been shown in a clinical trial to reduce the risk of a first stroke by 22% compared with placebo, although this finding applies specifically to adults aged 40 to 64 who had not previously had a stroke or a transient ischaemic attack (TIA), which means that the result cannot be assumed to extend to other groups. With respect to people over the age of 65, as well as pregnant or breastfeeding women, these populations were not included in the trial, and therefore no conclusions about benefit or safety can currently be drawn for them.
+
+Furthermore, patients who are currently taking warfarin or any other blood thinner should not, under any circumstances, begin taking Velorin without first discussing it with their doctor, owing to an increased risk of bleeding that was observed (bleeding events occurred in 3.4% of trial participants on Velorin versus 1.9% on placebo). The most common side effect was mild headache, reported by about 1 in 10 participants, which in most cases resolved within two weeks.
+
+It should also be borne in mind that these results come from a single 18-month trial with 4,120 participants, and they have not yet been replicated in an independent study. Additionally, the 22% figure is a relative reduction: in the trial, strokes occurred in 1.8% of the placebo group and 1.4% of the Velorin group over the 18 months.
