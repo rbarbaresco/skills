@@ -63,9 +63,13 @@ section.editing-notes h3 { font-size: 1rem; margin-top: 1.2rem; }
   body { font-size: 11pt; }
   main { max-width: none; padding: 0; }
   nav.toc { display: none; }
-  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .85em; color: #333; }
+  a[href^="http"]:not(.url)::after { content: " (" attr(href) ")"; font-size: .85em; color: #333; }
   h2, h3 { break-after: avoid; }
   pre, table, aside, li { break-inside: avoid; }
+  pre { white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; }
+  .table-wrap { overflow: visible; }
+  table { table-layout: fixed; }
+  th, td { overflow-wrap: anywhere; }
   .editor { display: none !important; }
 }
 </style>

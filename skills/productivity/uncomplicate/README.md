@@ -14,7 +14,7 @@ uncomplicate docs/rate-limit-spec.md — it's going to partner engineers who don
 this email is impossible to follow, can you clean it up so the team gets what was decided?
 ```
 
-It works on human-written text as well as AI-heavy text. If the reader or purpose isn't clear from the document, Claude asks one question; otherwise it infers them and tells you what it assumed.
+It works on human-written text as well as AI-heavy text. If the reader or purpose isn't clear from the document and the answer would change the rewrite, Claude asks; otherwise it infers them and tells you what it assumed.
 
 ## What you get
 
@@ -34,7 +34,7 @@ It works on human-written text as well as AI-heavy text. If the reader or purpos
 
 ## How it works
 
-Structure before wording: Claude states the reader and the core message, lists every fact and qualification, reorganizes (conclusion first where it helps, definitions before use, duplicates merged), then fixes wording (one term per concept, plain words, jargon explained). It checks the draft against the fact list, renders the page from a fixed template, and runs `scripts/check_html.py` (standard-library Python) to catch broken internal links, skipped heading levels, unescaped markup and anything that would load from the network.
+Structure before wording: Claude states the reader and the core message, lists every fact and qualification, reorganizes (conclusion first where it helps, definitions before use, duplicates merged), then fixes wording (one term per concept, plain words, jargon explained). It checks the draft against the fact list, renders the page from a fixed template, and runs `scripts/check_html.py` (standard-library Python). It allows only the tags the template uses, so it catches unescaped markup like `<user-id>`, scripts and anything that would load from the network, as well as broken internal links and skipped heading levels.
 
 Test cases live in `evals/`, in the layout `claude plugin eval` reads.
 

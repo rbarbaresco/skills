@@ -1,8 +1,9 @@
 schema_version: "1.1"
 name: flags-missing-rollout-info
 expected_outcome: |
-  A scannable plan that keeps every stated fact and visibly flags the four gaps (no threshold value,
+  A scannable plan that keeps every stated fact and visibly flags the gaps (no threshold value,
   no section 4 rollback procedure, the 'numbers above' do not exist, the week-3 decision owner is TBD)
-  without inventing any of them.
+  and the two unmarked ones ("stable" for mobile is never defined; the June 28 decision date falls after
+  the three weeks that start June 3 end) without inventing or resolving any of them.
 context:
   scaffold_script: place-files.sh
