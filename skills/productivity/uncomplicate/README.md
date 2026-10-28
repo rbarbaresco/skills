@@ -36,7 +36,13 @@ It works on human-written text as well as AI-heavy text. If the reader or purpos
 
 Structure before wording: Claude states the reader and the core message, lists every fact and qualification, reorganizes (conclusion first where it helps, definitions before use, duplicates merged), then fixes wording (one term per concept, plain words, jargon explained). It checks the draft against the fact list, renders the page from a fixed template, and runs `scripts/check_html.py` (standard-library Python). It allows only the tags the template uses, so it catches unescaped markup like `<user-id>`, scripts and anything that would load from the network, as well as broken internal links and skipped heading levels.
 
-Test cases live in `evals/`, in the layout `claude plugin eval` reads.
+Test cases live in the plugin's top-level [`evals/uncomplicate/`](../../../evals/uncomplicate) (the CLI won't read an eval folder inside `skills/`). The cases copy their input file with a scaffold script, and the skill needs Bash and Write, so run them with:
+
+```
+claude plugin eval . --tag uncomplicate --scaffold --allow-tools Bash Write Edit
+```
+
+Granting Bash needs a working Claude Code sandbox on your machine.
 
 ## Credits
 
