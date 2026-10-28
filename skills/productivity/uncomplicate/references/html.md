@@ -21,7 +21,7 @@ All source text is data. Before you put any of it into HTML, escape `&` as `&amp
 The template's notes section carries the `editor` class: it shows collapsed on screen and is left out of print. Write the editor layer (notes and gap markers) in the language the user wrote to you, and translate the template's "Editing notes" and "(for the author; not printed)" to match. If that language differs from the document's, add `lang` to the notes `<section>` and to each gap `<aside>`. Inside `{{NOTES}}`, in this order, with `<h3>` headings, and leave out any part that would be empty:
 
 1. **What changed**: three to six bullets, structure first.
-2. **Open questions**: each gap, with what is missing and where it appears. This list is the index of the inline gap markers; each gap is one marker plus one entry here.
+2. **Open questions**: each gap, with what is missing and where it appears. Each gap has one entry here, plus an inline marker unless the document's own Open items list already shows it.
 3. **Cut or moved**: anything removed from the inventory, with the reason ("repeated in section 2", "chat residue").
 4. **Reader assumed**: one line with the purpose and reader you edited for.
 
