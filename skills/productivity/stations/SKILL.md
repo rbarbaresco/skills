@@ -1,7 +1,7 @@
 ---
 name: stations
 disable-model-invocation: true
-description: Split one workstation into stations (work, personal, research, ...), each with its own Claude Code skills, plugins, MCP servers, settings and login, picked automatically from the folder you start in. Sets up from scratch, adopts what's already on the machine, and re-checks later. Every run is backed up with a one-command restore.
+description: Split one workstation into stations (work, personal, research, ...), each with its own Claude Code skills, plugins, MCP servers, settings and login, picked automatically from the folder you start in. Sets up from scratch, adopts what's already on the machine, adds one clean station, and re-checks later. Every run is backed up with a one-command restore.
 ---
 
 # Stations
@@ -19,7 +19,10 @@ Two files ship with this skill:
 
 ## 1. Branch
 
-Ask first, before reading anything: **start from scratch, or work with the stations already on this machine?** Stations already on the machine include ones set up by hand, without this skill. A machine where `~/.config/claude-stations.sh` exists has been through `/stations` before: the "existing" path then doubles as the **re-check** (step 6).
+Ask first, before reading anything, which of these the user wants:
+- **New station:** add one clean station, for example before starting a new project. Skip the survey (step 2); steps 3 to 6 cover that station only, and nothing already on the machine is moved, linked or installed.
+- **Scratch:** set up all the stations at once.
+- **Existing:** work with the stations already on this machine, including ones set up by hand, without this skill. A machine where `~/.config/claude-stations.sh` exists has been through `/stations` before: this path then doubles as the **re-check** (step 6).
 
 ## 2. Survey
 
@@ -36,8 +39,9 @@ Done when every config folder, every top-level folder under `$HOME`, and every s
 
 - **Existing:** propose a station for each config folder and each folder set up by hand, marked *found, not made by /stations*.
 - **Scratch:** ask which stations the user wants, suggesting `work`, `personal`, `research`. For each: name, root folder, one-line purpose.
+- **New station:** ask for its name, root folder and one-line purpose. If `~/.claude-<name>` already exists or the root is already in `~/.config/claude-stations.sh`, say so and ask again. The default station stays as it is.
 
-Either way, settle which station is the default (it keeps `~/.claude` and its login). The others get `~/.claude-<name>`. Done when the user confirms the list.
+On scratch and existing, settle which station is the default (it keeps `~/.claude` and its login). The others get `~/.claude-<name>`. Done when the user confirms the list.
 
 ## 4. Plan
 
@@ -54,7 +58,9 @@ One table, one row per surveyed item: item, kind, from, to, action, reason. Sort
 | `projects/<key>/` | **move** to the station whose root contains the project path, so its history and auto memory follow it. |
 | Shell | **create** `~/.config/claude-stations.sh` from `station-switch.sh` with the station map filled in, and **edit** `~/.zshrc` / `~/.bashrc` to source it. |
 
-Show the table, then the hazards and the `CLAUDE.md` repos from step 2. The user edits rows until they confirm. Done when every surveyed item has a row and the user has confirmed the table.
+**New station:** the table has only its own rows. **Create** `~/.claude-<name>` with a `settings.json` that holds only the `instructionFiles` setting above, nothing copied from the default. **Create** the root folder and `<root>/AGENTS.md` only when missing; an existing `AGENTS.md` stays as it is. Add the station's line to `~/.config/claude-stations.sh`: an **edit** when the file exists, otherwise the Shell row. With no survey there are no hazards or `CLAUDE.md` repos to show yet; step 6 checks both.
+
+Show the table, then the hazards and the `CLAUDE.md` repos from step 2. The user edits rows until they confirm. Done when every surveyed item has a row (new station: its own rows) and the user has confirmed the table.
 
 ## 5. Back up and apply
 
@@ -66,9 +72,9 @@ Done when every confirmed row is applied and has its manifest line.
 
 ## 6. Check
 
-Without calling the model, report for each station: its skills, agents, plugins, MCP servers, whether it has a login yet, and the `AGENTS.md` chain a sample repo under its root would load. Then:
-- confirm where `CLAUDE_CONFIG_DIR=<new station> claude mcp add` wrote the server (`<dir>/.claude.json` or `~/.claude.json`), and fix the plan if it landed in the shared file;
-- repeat the login hazards and the `CLAUDE.md` repos;
+Without calling the model, report for each station (a new station: that one only): its skills, agents, plugins, MCP servers, whether it has a login yet, and the `AGENTS.md` chain a sample repo under its root would load. Then:
+- when the run added an MCP server, confirm where `CLAUDE_CONFIG_DIR=<new station> claude mcp add` wrote it (`<dir>/.claude.json` or `~/.claude.json`), and fix the plan if it landed in the shared file;
+- repeat the login hazards and the `CLAUDE.md` repos; a new station had no survey, so check now, as listed in step 2, the login hazards and the `CLAUDE.md` repos under its root;
 - on a re-check, also list: user-level items installed since the last run (they load in the default station everywhere outside a station root), items whose description doesn't match their station's purpose, and `settings.json` keys whose values differ between stations (report the drift, sync nothing);
 - tell the user to open a new terminal tab, `cd` into a repo under each new station, run `claude`, `/login` once, and confirm the account in `/status`.
 

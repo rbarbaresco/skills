@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0
+
+- `stations`: the first prompt adds a third choice, **new station**, next to scratch and existing/re-check. It asks for a name, root folder and purpose, then creates `~/.claude-<name>` with a `settings.json` holding only the `instructionFiles` setting, the root `AGENTS.md` when missing, and the station's line in `~/.config/claude-stations.sh`. No survey, nothing else moved, backed up like every run.
+
 ## 0.6.0
 
 - Add `uncomplicate` (user-invoked): rewrites a hard-to-follow document for its reader and delivers it as a standalone HTML page whose editing notes stay on screen and are left out of print. Reorganizes before polishing, writes for readers whose first language isn't the document's, keeps every fact and qualification, flags missing information in place instead of inventing it, and leaves already-clear documents mostly alone. A bundled stdlib Python checker allows only the tags the template uses, so it catches most unescaped markup (not ordinary element names like `<p>`), scripts and anything loaded from the network, plus broken internal links and skipped headings; print never cuts off code or tables.
