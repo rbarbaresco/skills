@@ -39,7 +39,7 @@ Instructions live in `AGENTS.md` files and follow the folder tree, so a session 
 
 ## What a run does
 
-1. **Asks** whether to start from scratch or adopt the stations already on the machine, including ones you set up by hand.
+1. **Asks** whether to add one new station, start from scratch, or adopt the stations already on the machine, including ones you set up by hand. A new station starts clean: an empty config folder, its root `AGENTS.md` and its line in the station map, with no survey and nothing else moved.
 2. **Surveys** your machine without changing anything: config folders, skills, plugins, MCP servers, logins, top-level folders under `$HOME`, and anything that would override a station's login.
 3. **Agrees the stations** with you: the name, root folder and purpose of each, and which one is the default.
 4. **Shows a plan**: one table row per item, saying where it goes and why. Nothing changes until you confirm the table.
