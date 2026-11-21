@@ -2,7 +2,7 @@
 
 ## 0.7.0
 
-- `stations`: the first prompt adds a third choice, **new station**, next to scratch and existing/re-check. It asks for a name, root folder and purpose, then creates `~/.claude-<name>` with a `settings.json` holding only the `instructionFiles` setting, the root `AGENTS.md` and the station's line in `~/.config/claude-stations.sh`. No survey, nothing else moved, backed up like every run.
+- `stations`: the first prompt adds a third choice, **new station**, next to scratch and existing/re-check. It asks for a name, root folder and purpose, then creates `~/.claude-<name>` with a `settings.json` holding only the `instructionFiles` setting, the root `AGENTS.md` when missing, and the station's line in `~/.config/claude-stations.sh`. No survey, nothing else moved, backed up like every run.
 
 ## 0.6.0
 

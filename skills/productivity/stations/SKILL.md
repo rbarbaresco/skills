@@ -58,9 +58,9 @@ One table, one row per surveyed item: item, kind, from, to, action, reason. Sort
 | `projects/<key>/` | **move** to the station whose root contains the project path, so its history and auto memory follow it. |
 | Shell | **create** `~/.config/claude-stations.sh` from `station-switch.sh` with the station map filled in, and **edit** `~/.zshrc` / `~/.bashrc` to source it. |
 
-**New station:** the table has only its own rows. **Create** `~/.claude-<name>` with a `settings.json` that holds only the `instructionFiles` setting above, nothing copied from the default. **Create** the root folder and `<root>/AGENTS.md` only when missing; an existing `AGENTS.md` stays as it is. Add the station's line to `~/.config/claude-stations.sh`: an **edit** when the file exists, otherwise the Shell row. With no survey there are no hazards or `CLAUDE.md` repos to show yet; step 6 checks the hazards.
+**New station:** the table has only its own rows. **Create** `~/.claude-<name>` with a `settings.json` that holds only the `instructionFiles` setting above, nothing copied from the default. **Create** the root folder and `<root>/AGENTS.md` only when missing; an existing `AGENTS.md` stays as it is. Add the station's line to `~/.config/claude-stations.sh`: an **edit** when the file exists, otherwise the Shell row. With no survey there are no hazards or `CLAUDE.md` repos to show yet; step 6 checks both.
 
-Show the table, then the hazards and the `CLAUDE.md` repos from step 2. The user edits rows until they confirm. Done when every planned row is in the table and the user has confirmed it.
+Show the table, then the hazards and the `CLAUDE.md` repos from step 2. The user edits rows until they confirm. Done when every surveyed item has a row (new station: its own rows) and the user has confirmed the table.
 
 ## 5. Back up and apply
 
@@ -74,7 +74,7 @@ Done when every confirmed row is applied and has its manifest line.
 
 Without calling the model, report for each station (a new station: that one only): its skills, agents, plugins, MCP servers, whether it has a login yet, and the `AGENTS.md` chain a sample repo under its root would load. Then:
 - when the run added an MCP server, confirm where `CLAUDE_CONFIG_DIR=<new station> claude mcp add` wrote it (`<dir>/.claude.json` or `~/.claude.json`), and fix the plan if it landed in the shared file;
-- repeat the login hazards and the `CLAUDE.md` repos; a new station had no survey, so check its login hazards now, as listed in step 2;
+- repeat the login hazards and the `CLAUDE.md` repos; a new station had no survey, so check now, as listed in step 2, the login hazards and the `CLAUDE.md` repos under its root;
 - on a re-check, also list: user-level items installed since the last run (they load in the default station everywhere outside a station root), items whose description doesn't match their station's purpose, and `settings.json` keys whose values differ between stations (report the drift, sync nothing);
 - tell the user to open a new terminal tab, `cd` into a repo under each new station, run `claude`, `/login` once, and confirm the account in `/status`.
 
