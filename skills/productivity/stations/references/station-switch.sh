@@ -11,6 +11,7 @@ claude() {
   local root cfg best_root="" best_cfg=""
   while IFS='|' read -r root cfg; do
     [ -n "$root" ] || continue
+    root=${root%/}  # a hand-written trailing / would never match below
     case "$PWD/" in
       "$root"/*) [ ${#root} -gt ${#best_root} ] && best_root=$root && best_cfg=$cfg ;;
     esac

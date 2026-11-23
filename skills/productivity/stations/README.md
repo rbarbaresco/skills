@@ -25,7 +25,7 @@ A station is three things:
 
 | Part | Example | What it holds |
 |---|---|---|
-| Root folder | `~/work` | The repos that belong to this station |
+| Root folder(s) | `~/work` | The repos that belong to this station; a station can have several |
 | Config folder | `~/.claude-work` | Skills, agents, plugins, MCP servers, settings, history, memory and the login |
 | Instructions | `~/work/AGENTS.md` | Rules for every session started under the root |
 
@@ -37,36 +37,31 @@ Instructions live in `AGENTS.md` files and follow the folder tree, so a session 
 2. `<station root>/AGENTS.md`: this station only.
 3. The repo's own `AGENTS.md` or `CLAUDE.md`.
 
-## What a run does
+## What it does
 
-1. **Asks** whether to add one new station, start from scratch, or adopt the stations already on the machine, including ones you set up by hand. A new station starts clean: an empty config folder, its root `AGENTS.md` and its line in the station map, with no survey and nothing else moved.
-2. **Surveys** your machine without changing anything (skipped for a new station): config folders, skills, plugins, MCP servers, logins, top-level folders under `$HOME`, and anything that would override a station's login.
-3. **Agrees the stations** with you: the name, root folder and purpose of each, and which one is the default.
-4. **Shows a plan**: one table row per item, saying where it goes and why. Nothing changes until you confirm the table.
-5. **Backs up and applies** the plan. Every action is logged to a backup folder as it happens, so even a run that fails halfway can be undone.
-6. **Checks** the result: it shows what each station now carries and tells you how to log in to each new station.
+It never reads or changes `~/.claude` or any station except the one you pick. A new station starts empty: no skills, plugins or MCP servers, and its own `/login`.
 
-Run it again later to catch anything you've installed since. The re-check lists new installs that leaked into the default station, items that don't match their station's purpose, and settings that differ between stations.
+| Action | What you answer | What changes |
+|---|---|---|
+| **Create** | the station's name; optionally a root (default `~/<name>`) and a one-line purpose | `~/.claude-<name>/` with a `settings.json`, the root and its `AGENTS.md` if missing, and the station's line in `~/.config/claude-stations.sh`. The first station also copies that file in and adds one `source` line to `~/.zshrc` or `~/.bashrc`. |
+| **Edit** | which station, then a root to add or remove, or a new name | its lines in the map; a rename also moves the folder, with its history and (on Linux) its login. A station with plugins or hooks installed can't be renamed, because they store the folder's path: create a new one and delete the old. |
+| **Delete** | which station, then yes after seeing its size, login and saved sessions | its lines in the map and its folder. Its roots and repos stay; sessions there use the station whose root encloses them, or the default. |
 
-## Undoing a run
+It won't edit or delete the station you're running it from, and only acts on folders named `~/.claude-<name>`; anything else in the map is listed as not managed. Copy a skill or plugin into a new station yourself if you want it there.
 
-Each run writes `~/.agent-config-backup-<date>/` with a `README.md`, a `MANIFEST.tsv` that logs every action, and `restore.sh`. To undo the run:
+## Undoing a change
 
-```bash
-bash ~/.agent-config-backup-<date>/restore.sh
-```
-
-Nothing is ever deleted. Moved files go back where they were, edited files get their old copy back, and anything the run created goes to an `undone/` folder.
+Before editing `~/.config/claude-stations.sh` or your rc file, the skill copies it to `<file>.bak`. Copy that back to undo the last edit. A deleted station's folder is gone; deleting it doesn't sign the account out on claude.ai.
 
 ## Limitations
 
 - **IDE extension and desktop app:** they don't start through your shell, so they always use the default station.
-- **API keys in the environment:** `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_PROFILE`, if exported, override every station's login. The survey flags them, but you have to remove them yourself.
+- **API keys in the environment:** `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_PROFILE`, if exported, override every station's login. Create warns about them, but you have to remove them yourself.
 - **Console sign-ins** stored in `~/.config/anthropic/` sit outside every config folder, so stations can't keep them apart.
-- **Repos with only a `CLAUDE.md`:** by default Claude Code skips `AGENTS.md` files when a `CLAUDE.md` exists. The skill turns on the `claude-md-and-agents-md` setting so both load, and lists those repos so you can rename them. It doesn't rename them for you.
+- **Repos with only a `CLAUDE.md`:** by default Claude Code skips `AGENTS.md` files when a `CLAUDE.md` exists. The skill turns on the `claude-md-and-agents-md` setting in each new station so both load.
 - **Plugins are installed per station,** not linked. Updating a plugin in one station doesn't update it in the others.
 - **Each new station needs a `/login`** the first time you open it.
-- **Settings drift:** the re-check reports `settings.json` differences between stations but doesn't sync them.
+- **Not verified on macOS:** the login is checked as a file in the config folder (Linux). How the macOS Keychain separates logins per config folder was not checked.
 
 ## Files
 
@@ -74,4 +69,3 @@ Nothing is ever deleted. Moved files go back where they were, edited files get t
 |---|---|
 | [`SKILL.md`](SKILL.md) | The instructions Claude follows during a run |
 | [`references/station-switch.sh`](references/station-switch.sh) | The `claude()` shell function that picks the station |
-| [`references/restore.sh`](references/restore.sh) | Undoes a run from its `MANIFEST.tsv` |
