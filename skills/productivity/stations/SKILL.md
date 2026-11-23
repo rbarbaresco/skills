@@ -1,81 +1,40 @@
 ---
 name: stations
 disable-model-invocation: true
-description: Split one workstation into stations (work, personal, research, ...), each with its own Claude Code skills, plugins, MCP servers, settings and login, picked automatically from the folder you start in. Sets up from scratch, adopts what's already on the machine, adds one clean station, and re-checks later. Every run is backed up with a one-command restore.
+description: Create, edit or delete stations (work, personal, research, ...), each a separate Claude Code config folder with its own skills, plugins, MCP servers, settings and login, picked automatically from the folder you start in. Never touches ~/.claude or any other station.
 ---
 
 # Stations
 
-A **station** is an office: a root folder, a one-line purpose, and its own Claude Code config folder (`CLAUDE_CONFIG_DIR`). Walking into the folder switches the whole office: skills, agents, rules, plugins, user MCP servers, settings, history, auto memory, and the claude.ai login. Separate logins mean a work account and a personal account run side by side in different terminal tabs.
+A **station** is a Claude Code config folder, `~/.claude-<name>`, plus one or more **root** folders. Running `claude` anywhere under a root starts Claude Code with `CLAUDE_CONFIG_DIR` set to that folder, so the station keeps its own login, skills, agents, plugins, user MCP servers, settings, history and auto memory. A new station starts empty. `~/.claude` stays the **default station**: used outside every root, and by the IDE extension and desktop app, which don't start through the shell.
 
-What the office carries and what it doesn't:
-- **Tools** live in the config folder. Claude Code reads project skills and `.claude/settings.json` only up to the repo root, so a `.claude/` folder at a station root never reaches the repos inside it. That's why stations switch config folders, not project folders.
-- **Instructions** follow the folder tree: every `AGENTS.md` from the start folder up to `/` loads. The shared core lives in `~/AGENTS.md`, station rules in `<root>/AGENTS.md`, repo rules in the repo.
-- `~/.claude` stays the **default station**, used outside every station root, and by the IDE extension and desktop app, which don't start through the shell.
+The map lives in `~/.config/claude-stations.sh`: one `<root>|<config folder>` line per root in `CLAUDE_STATIONS`, written with `$HOME`, for example `$HOME/work|$HOME/.claude-work`. A station's name is its folder's suffix. The file is a copy of `${CLAUDE_PLUGIN_ROOT}/skills/productivity/stations/references/station-switch.sh`, whose `claude()` function picks the longest matching root.
 
-Two files ship with this skill:
-- `${CLAUDE_PLUGIN_ROOT}/skills/productivity/stations/references/station-switch.sh`: the `claude()` shell function that picks the config folder from `$PWD`.
-- `${CLAUDE_PLUGIN_ROOT}/skills/productivity/stations/references/restore.sh`: undoes a run from its `MANIFEST.tsv`. Its header defines the manifest format.
+**Ground rule:** an action touches only the target station's folder, its map lines, its root's `AGENTS.md` (create, when missing) and, on the first create, one `source` line in the shell rc file. Never `~/.claude`, never another station's folder. Before editing `claude-stations.sh` or an rc file, copy it to `<file>.bak`. Leave comments and other stations' lines in the map as they are; users edit it by hand.
 
-## 1. Branch
+## Start
 
-Ask first, before reading anything, which of these the user wants:
-- **New station:** add one clean station, for example before starting a new project. Skip the survey (step 2); steps 3 to 6 cover that station only, and nothing already on the machine is moved, linked or installed.
-- **Scratch:** set up all the stations at once.
-- **Existing:** work with the stations already on this machine, including ones set up by hand, without this skill. A machine where `~/.config/claude-stations.sh` exists has been through `/stations` before: this path then doubles as the **re-check** (step 6).
+Read the map and list the stations: name, roots, and whether the folder has a login (`.credentials.json`). List any `~/.claude-*` folder that isn't in the map as *not managed by /stations*; no action takes it. Then ask: **create, edit or delete?**
 
-## 2. Survey
+## Create
 
-Read-only. Collect:
-- **Config folders:** `~/.claude`, every `~/.claude-*`, and every `CLAUDE_CONFIG_DIR` set in `~/.zshrc`, `~/.bashrc`, `~/.profile`, or an alias or function there.
-- **Per config folder:** loose skills in `skills/` (name and description from frontmatter, and whether it's a symlink), `agents/`, `rules/`, `CLAUDE.md`, `settings.json` (`enabledPlugins`, the `instructionFiles` setting), installed plugins (`CLAUDE_CONFIG_DIR=<dir> claude plugin list`), user MCP servers (`CLAUDE_CONFIG_DIR=<dir> claude mcp list`), whether `.credentials.json` exists, and the `projects/<key>/` folders (a key is the absolute project path with every `/` turned into `-`).
-- **Folders:** top-level folders under `$HOME` that hold git repos, grouped by git remote owner (an organisation usually means an employer). Also `AGENTS.md`, `CLAUDE.md` and `.claude/settings*.json` in folders that aren't repos: those are stations set up by hand.
-- **Repos still on `CLAUDE.md`:** repos under each root that have a `CLAUDE.md` and no `AGENTS.md`. Report them for the user to rename; leave them as they are.
-- **Login hazards:** `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_PROFILE` exported in the environment or an rc file (any of them overrides every station's login), and a `~/.config/anthropic/` folder (a Console sign-in without an API key lives there, outside every config folder, so stations can't keep those apart).
+Ask one question: **What's the station called?** The root defaults to `~/<name>`, the purpose to none. Take either from the same reply if the user gives it (`foo, root ~/code/foo, for side projects`); don't ask for them. If `~/.claude-<name>` exists or the root is already in the map, say so and ask again.
 
-Done when every config folder, every top-level folder under `$HOME`, and every skill, plugin and MCP server has been recorded.
+1. Create `~/.claude-<name>/settings.json` holding only `{"pluginConfigs": {"cc-plugin-agents-md@builtin": {"options": {"instructionFiles": "claude-md-and-agents-md"}}}}`, so a repo's own `CLAUDE.md` doesn't hide the `AGENTS.md` files above it.
+2. Create the root and `<root>/AGENTS.md` (a heading, plus the purpose if given) only when missing. An existing `AGENTS.md` stays as it is.
+3. Add the station's line to the map. When `~/.config/claude-stations.sh` doesn't exist, copy it from `station-switch.sh` first, and add `source ~/.config/claude-stations.sh` to `~/.zshrc` or `~/.bashrc` (the user's shell) unless it's already there.
+4. Report in a few lines: what was created, by path; any login hazard found (`ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_PROFILE` exported in the environment or an rc file override every station's login; a `~/.config/anthropic/` folder holds a Console sign-in no station can keep apart); then: open a new terminal tab, `cd` into the root, run `claude`, `/login` once, and confirm the account in `/status`.
 
-## 3. Stations
+## Edit
 
-- **Existing:** propose a station for each config folder and each folder set up by hand, marked *found, not made by /stations*.
-- **Scratch:** ask which stations the user wants, suggesting `work`, `personal`, `research`. For each: name, root folder, one-line purpose.
-- **New station:** ask for its name, root folder and one-line purpose. If `~/.claude-<name>` already exists or the root is already in `~/.config/claude-stations.sh`, say so and ask again. The default station stays as it is.
+Pick a station, then one of:
+- **Add or remove a root:** add or remove its map line. On remove, say once that sessions saved under that root stay in this station's folder, keyed by the repo's absolute path: `claude` started there now uses another station and won't see them.
+- **Rename:** move `~/.claude-<old>` to `~/.claude-<new>` and rewrite its map lines. History and login move with the folder.
 
-On scratch and existing, settle which station is the default (it keeps `~/.claude` and its login). The others get `~/.claude-<name>`. Done when the user confirms the list.
+## Delete
 
-## 4. Plan
+Pick a station. Show its folder's size, whether it has a login, and how many saved sessions it holds (`projects/*/*.jsonl`), and ask once. On yes: remove all its map lines, then delete the folder. Its roots and their repos stay; sessions started there now use the default station. Deleting the folder doesn't sign the account out on claude.ai.
 
-One table, one row per surveyed item: item, kind, from, to, action, reason. Sort by matching each item's description against each station's purpose. When it's unclear, give it to every station and say so in the reason. Actions:
+## Guard
 
-| Item | Rule |
-|---|---|
-| Loose skill, agent, rule | **move** to the one station that owns it. Needed in several: it stays in its owner's folder and the others get a **create** of a symlink to it. |
-| Plugin | install it in each station that needs it (`CLAUDE_CONFIG_DIR=<dir> claude plugin marketplace add ...` then `plugin install`), and set it to `false` in `enabledPlugins` where it isn't needed. Plugin skills are never moved or linked: the plugin's repo stays their only source. |
-| User MCP server | re-add it with `CLAUDE_CONFIG_DIR=<dir> claude mcp add --scope user ...` in each station that needs it; remove it from the default station when only other stations need it. Each add or remove is an **edit** of the file holding the server. |
-| `settings.json` | a new station gets a copy of the default's, with its own `enabledPlugins`. Every station has `pluginConfigs."cc-plugin-agents-md@builtin".options.instructionFiles` set to `"claude-md-and-agents-md"`, so a repo's own `CLAUDE.md` doesn't hide the `AGENTS.md` files above it. |
-| `<config>/CLAUDE.md` | its content moves to `~/AGENTS.md` (shared core) or `<root>/AGENTS.md` (one station only). A user-level `CLAUDE.md` loads in a single station, so it can't hold the shared core. |
-| `<root>/AGENTS.md` | create it when missing: a heading and the station's purpose. |
-| `projects/<key>/` | **move** to the station whose root contains the project path, so its history and auto memory follow it. |
-| Shell | **create** `~/.config/claude-stations.sh` from `station-switch.sh` with the station map filled in, and **edit** `~/.zshrc` / `~/.bashrc` to source it. |
-
-**New station:** the table has only its own rows. **Create** `~/.claude-<name>` with a `settings.json` that holds only the `instructionFiles` setting above, nothing copied from the default. **Create** the root folder and `<root>/AGENTS.md` only when missing; an existing `AGENTS.md` stays as it is. Add the station's line to `~/.config/claude-stations.sh`: an **edit** when the file exists, otherwise the Shell row. With no survey there are no hazards or `CLAUDE.md` repos to show yet; step 6 checks both.
-
-Show the table, then the hazards and the `CLAUDE.md` repos from step 2. The user edits rows until they confirm. Done when every surveyed item has a row (new station: its own rows) and the user has confirmed the table.
-
-## 5. Back up and apply
-
-1. Create `~/.agent-config-backup-<YYYY-MM-DD-HHMM>/`. Copy `restore.sh` into it, plus a `README.md`: what the run did, and `bash restore.sh` to undo it.
-2. Apply the rows in order. Write each action to `MANIFEST.tsv` **right after** it succeeds, so a run that fails halfway still restores. Before an **edit**, copy the file to `files/<absolute path>` inside the backup; that copy goes in the manifest row. To retire a file, **move** it into `files/` in the backup. Never delete anything.
-3. Skip `projects/` content beyond the moves above: session history is large and moves undo cleanly.
-
-Done when every confirmed row is applied and has its manifest line.
-
-## 6. Check
-
-Without calling the model, report for each station (a new station: that one only): its skills, agents, plugins, MCP servers, whether it has a login yet, and the `AGENTS.md` chain a sample repo under its root would load. Then:
-- when the run added an MCP server, confirm where `CLAUDE_CONFIG_DIR=<new station> claude mcp add` wrote it (`<dir>/.claude.json` or `~/.claude.json`), and fix the plan if it landed in the shared file;
-- repeat the login hazards and the `CLAUDE.md` repos; a new station had no survey, so check now, as listed in step 2, the login hazards and the `CLAUDE.md` repos under its root;
-- on a re-check, also list: user-level items installed since the last run (they load in the default station everywhere outside a station root), items whose description doesn't match their station's purpose, and `settings.json` keys whose values differ between stations (report the drift, sync nothing);
-- tell the user to open a new terminal tab, `cd` into a repo under each new station, run `claude`, `/login` once, and confirm the account in `/status`.
-
-Finish with the backup folder's path and its restore command.
+Refuse to edit or delete the station this session runs in (`$CLAUDE_CONFIG_DIR` is its folder): moving or deleting the folder under a live session breaks it. Ask the user to run `/stations` from another station or from a folder outside every root.

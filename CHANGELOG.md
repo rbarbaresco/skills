@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0
+
+- `stations` now does three things and never touches `~/.claude` or any other station: **create** a station from one question (its name; the root defaults to `~/<name>`), **edit** one (add or remove a root, rename it), or **delete** one (after showing what's in it). `claude-stations.sh` and the rc file get a `.bak` copy before each edit. **Removed:** the survey, adopting existing setups, the plan table, the re-check, the list of repos still on `CLAUDE.md`, and the per-run backup with `restore.sh`. Backup folders from earlier runs still restore with the `restore.sh` inside them.
+
 ## 0.7.0
 
 - `stations`: the first prompt adds a third choice, **new station**, next to scratch and existing/re-check. It asks for a name, root folder and purpose, then creates `~/.claude-<name>` with a `settings.json` holding only the `instructionFiles` setting, the root `AGENTS.md` when missing, and the station's line in `~/.config/claude-stations.sh`. No survey, nothing else moved, backed up like every run.
