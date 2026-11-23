@@ -2,7 +2,7 @@
 
 ## 0.8.0
 
-- `stations` now does three things and never touches `~/.claude` or any other station: **create** a station from one question (its name; the root defaults to `~/<name>`), **edit** one (add or remove a root, rename it), or **delete** one (after showing what's in it). `claude-stations.sh` and the rc file get a `.bak` copy before each edit. **Removed:** the survey, adopting existing setups, the plan table, the re-check, the list of repos still on `CLAUDE.md`, and the per-run backup with `restore.sh`. Backup folders from earlier runs still restore with the `restore.sh` inside them.
+- `stations` now does three things and never touches `~/.claude` or any other station: **create** a station from one question (its name; the root defaults to `~/<name>`), **edit** one (add or remove a root; rename one that has no plugins or hooks installed), or **delete** one (after showing what's in it). `claude-stations.sh` and the rc file get a `.bak` copy before each edit. **Removed:** the survey, adopting existing setups, the plan table, the re-check, the list of repos still on `CLAUDE.md`, and the per-run backup with `restore.sh`. Backup folders from earlier runs still restore with the `restore.sh` inside them. The `claude()` switch now accepts a root written with a trailing `/`; an existing `~/.config/claude-stations.sh` keeps the old function until you copy the new one in.
 
 ## 0.7.0
 
