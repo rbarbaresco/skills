@@ -12,7 +12,7 @@ The map lives in `~/.config/claude-stations.sh`: one `<root>|<config folder>` li
 
 **Ground rules**
 - An action writes only the target station's folder, its map lines, its root's `AGENTS.md` (create, when missing) and the `source` line in the shell rc file. Never `~/.claude`, never another station's folder.
-- A name is `[a-z0-9-]+`. A station is **managed** only when its folder resolves to exactly `$HOME/.claude-<name>` with such a name. List any other map line or `~/.claude-*` folder as *not managed by /stations* and never act on it. That covers a line pointing at `~/.claude`.
+- A name is `[a-z0-9-]+`. A station is **managed** only when its folder resolves to exactly `$HOME/.claude-<name>` with such a name. List any other map line or `~/.claude-*` folder as *not managed by /stations* and never act on it. That covers a line pointing at `~/.claude`. Commands act on `$HOME/.claude-<name>` built from the name, never on the string from the map, and refuse when that path is a symlink.
 - Users edit the map by hand, so lines may use `$HOME`, an absolute path or a trailing `/`. Read the map by sourcing it in a subshell (`bash -c '. ~/.config/claude-stations.sh; printf "%s\n" "$CLAUDE_STATIONS"'`) and compare expanded paths with the trailing `/` dropped. Write new lines as `$HOME/<path>|$HOME/.claude-<name>`, with no `~` and no trailing `/`. Leave comments and other lines as they are.
 - Before editing `claude-stations.sh` or an rc file, copy it to `<file>.bak`.
 - A root is never `~` or `/`. Either one would take over every session that now uses the default station.
@@ -35,7 +35,7 @@ Ask one question: **What's the station called?** The root defaults to `~/<name>`
 Pick a managed station, then one of:
 - **Add a root:** the same root checks as Create, then add its map line.
 - **Remove a root:** refuse when it's the station's last root and point to Delete. Otherwise remove the line, and say once that sessions saved under that root stay in this station's folder, keyed by the repo's absolute path: `claude` started there now uses another station and won't see them.
-- **Rename:** the new name follows the name rule, and neither `~/.claude-<new>` nor a map line for it may exist. Refuse when any file in the folder's `plugins/` or its `settings.json` contains the folder's absolute path. Claude Code stores installed plugins and hooks that way, and a move would leave them pointing at a folder that's gone. Suggest a new station plus Delete instead. Otherwise move `~/.claude-<old>` to `~/.claude-<new>` and rewrite its map lines. Login and history move with the folder, and the roots stay where they are.
+- **Rename:** the new name follows the name rule, and neither `~/.claude-<new>` nor a map line for it may exist. Refuse when `.claude-<old>`, written in any form (`~`, `$HOME` or absolute), appears in the folder's `plugins/`, `settings.json`, `settings.local.json` or `.claude.json`. Installed plugins, hooks and MCP servers that point into the folder would be left pointing at a folder that's gone. Suggest a new station plus Delete instead. Otherwise move `~/.claude-<old>` to `~/.claude-<new>` and rewrite its map lines. History moves with the folder, and so does the login on Linux; on macOS the user may need to `/login` again. The roots stay where they are.
 
 ## Delete
 

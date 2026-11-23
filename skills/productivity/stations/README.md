@@ -44,7 +44,7 @@ It never reads or changes `~/.claude` or any station except the one you pick. A 
 | Action | What you answer | What changes |
 |---|---|---|
 | **Create** | the station's name; optionally a root (default `~/<name>`) and a one-line purpose | `~/.claude-<name>/` with a `settings.json`, the root and its `AGENTS.md` if missing, and the station's line in `~/.config/claude-stations.sh`. The first station also copies that file in and adds one `source` line to `~/.zshrc` or `~/.bashrc`. |
-| **Edit** | which station, then a root to add or remove, or a new name | its lines in the map; a rename also moves the folder, with its login and history. A station with plugins or hooks installed can't be renamed, because they store the folder's path: create a new one and delete the old. |
+| **Edit** | which station, then a root to add or remove, or a new name | its lines in the map; a rename also moves the folder, with its history and (on Linux) its login. A station with plugins or hooks installed can't be renamed, because they store the folder's path: create a new one and delete the old. |
 | **Delete** | which station, then yes after seeing its size, login and saved sessions | its lines in the map and its folder. Its roots and repos stay; sessions there use the station whose root encloses them, or the default. |
 
 It won't edit or delete the station you're running it from, and only acts on folders named `~/.claude-<name>`; anything else in the map is listed as not managed. Copy a skill or plugin into a new station yourself if you want it there.
